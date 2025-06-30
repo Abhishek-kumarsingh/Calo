@@ -1,0 +1,400 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+interface Question {
+  question: string;
+  answer: string;
+  feedback: string;
+}
+
+interface Interview {
+  id: string;
+  domain: string;
+  subDomain: string;
+  level: string;
+  status: string;
+  score?: number | null;
+  overallFeedback?: string | null;
+  userId: string;
+  questions: Question[];
+  createdAt: string;
+}
+
+export default function TakeInterviewPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [interview, setInterview] = useState<Interview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [completed, setCompleted] = useState(false);
+
+  // Fetch interview data
+  useEffect(() => {
+    const fetchInterview = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/interviews/${params.id}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch interview');
+        }
+        
+        const data = await response.json();
+        setInterview(data);
+        
+        // Check if the interview is already completed
+        if (data.status === 'completed') {
+          setCompleted(true);
+        }
+      } catch (error) {
+        console.error('Error fetching interview:', error);
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+        toast({
+          title: 'Error',
+          description: 'Failed to load interview',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInterview();
+  }, [params.id, toast]);
+
+  // Submit answer for current question
+  const submitAnswer = async () => {
+    if (!interview || !userAnswer.trim()) return;
+    
+    try {
+      setSubmitting(true);
+      
+      // Create a copy of the interview questions
+      const updatedQuestions = [...interview.questions];
+      
+      // Update the current question with the user's answer
+      updatedQuestions[currentQuestionIndex] = {
+        ...updatedQuestions[currentQuestionIndex],
+        answer: userAnswer
+      };
+      
+      // Update the interview with the new questions
+      const updatedInterview = {
+        ...interview,
+        questions: updatedQuestions
+      };
+      
+      // Save to the API
+      const response = await fetch(`/api/interviews/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedInterview),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save answer');
+      }
+      
+      // Update local state
+      setInterview(updatedInterview);
+      
+      // Move to the next question or complete the interview
+      if (currentQuestionIndex < interview.questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setUserAnswer(''); // Clear the answer for the next question
+      } else {
+        // Complete the interview
+        completeInterview();
+      }
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to submit your answer',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Complete the interview
+  const completeInterview = async () => {
+    if (!interview) return;
+    
+    try {
+      setSubmitting(true);
+      
+      // Update the interview status to completed
+      const updatedInterview = {
+        ...interview,
+        status: 'completed'
+      };
+      
+      // Save to the API
+      const response = await fetch(`/api/interviews/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedInterview),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to complete interview');
+      }
+      
+      // Update local state
+      setInterview(updatedInterview);
+      setCompleted(true);
+      
+      toast({
+        title: 'Interview Completed',
+        description: 'Your interview has been completed successfully',
+      });
+    } catch (error) {
+      console.error('Error completing interview:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to complete the interview',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Navigate to previous question
+  const goToPreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      // Set the answer field to the previously saved answer
+      if (interview) {
+        setUserAnswer(interview.questions[currentQuestionIndex - 1].answer || '');
+      }
+    }
+  };
+
+  // Navigate to next question
+  const goToNextQuestion = () => {
+    if (interview && currentQuestionIndex < interview.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      // Set the answer field to the previously saved answer
+      setUserAnswer(interview.questions[currentQuestionIndex + 1].answer || '');
+    }
+  };
+
+  // Return to interviews list
+  const returnToInterviews = () => {
+    router.push('/dashboard/interviews');
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading interview...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !interview) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive">Error Loading Interview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>{error || 'Failed to load interview data'}</p>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={returnToInterviews}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Return to Interviews
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  // Completed interview state
+  if (completed) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <Card>
+          <CardHeader className="bg-primary/10 border-b">
+            <CardTitle className="flex items-center">
+              <CheckCircle2 className="h-5 w-5 mr-2 text-primary" />
+              Interview Completed
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Thank You!</h2>
+                <p className="text-muted-foreground">
+                  You have successfully completed your {interview.domain} interview on {interview.subDomain}.
+                </p>
+              </div>
+              
+              <div className="bg-muted p-4 rounded-md">
+                <h3 className="font-medium mb-2">Interview Summary</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>Domain:</div>
+                  <div className="font-medium">{interview.domain}</div>
+                  <div>Sub-domain:</div>
+                  <div className="font-medium">{interview.subDomain}</div>
+                  <div>Level:</div>
+                  <div className="font-medium">{interview.level}</div>
+                  <div>Questions:</div>
+                  <div className="font-medium">{interview.questions.length}</div>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-muted-foreground">
+                  Your answers have been recorded. You can view your results and feedback in the interviews dashboard.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="border-t bg-muted/50 flex justify-between">
+            <Button onClick={returnToInterviews}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Return to Interviews
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  // Active interview state
+  const currentQuestion = interview.questions[currentQuestionIndex];
+  const totalQuestions = interview.questions.length;
+  const progress = Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100);
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <Card>
+        <CardHeader className="border-b">
+          <div className="flex justify-between items-center mb-2">
+            <CardTitle>
+              {interview.domain} Interview: {interview.subDomain}
+            </CardTitle>
+            <span className="text-sm text-muted-foreground">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div
+              className="bg-primary rounded-full h-2 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </CardHeader>
+        
+        <CardContent className="pt-6">
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4">{currentQuestion.question}</h2>
+              <Textarea
+                placeholder="Type your answer here..."
+                className="min-h-[200px]"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+              />
+            </div>
+            
+            {currentQuestion.feedback && (
+              <div className="bg-primary/10 p-4 rounded-md">
+                <h3 className="font-medium mb-2">Feedback</h3>
+                <p>{currentQuestion.feedback}</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+        
+        <CardFooter className="border-t bg-muted/50 flex justify-between">
+          <div>
+            <Button
+              variant="outline"
+              onClick={goToPreviousQuestion}
+              disabled={currentQuestionIndex === 0 || submitting}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+          </div>
+          
+          <div className="flex gap-2">
+            {currentQuestionIndex < totalQuestions - 1 ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={goToNextQuestion}
+                  disabled={!currentQuestion.answer || submitting}
+                >
+                  Skip
+                </Button>
+                <Button
+                  onClick={submitAnswer}
+                  disabled={!userAnswer.trim() || submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      Next
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={submitAnswer}
+                disabled={!userAnswer.trim() || submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Completing...
+                  </>
+                ) : (
+                  <>
+                    Complete Interview
+                    <CheckCircle2 className="h-4 w-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}

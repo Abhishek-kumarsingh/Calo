@@ -1,0 +1,499 @@
+"use client";
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Code, 
+  Database, 
+  Layers, 
+  BarChart, 
+  AlertCircle,
+  ArrowLeft
+} from 'lucide-react';
+
+// Domain options
+const domains = [
+  {
+    id: 'frontend',
+    name: 'Frontend',
+    description: 'Web interfaces and client-side applications',
+    icon: Layers
+  },
+  {
+    id: 'backend',
+    name: 'Backend',
+    description: 'Server-side applications and APIs',
+    icon: Database
+  },
+  {
+    id: 'fullstack',
+    name: 'Full Stack',
+    description: 'End-to-end application development',
+    icon: Code
+  },
+  {
+    id: 'data',
+    name: 'Data Science',
+    description: 'Data analysis and machine learning',
+    icon: BarChart
+  }
+];
+
+// Sub-domain options for each domain
+const subDomains = {
+  frontend: [
+    { id: 'react', name: 'React' },
+    { id: 'angular', name: 'Angular' },
+    { id: 'vue', name: 'Vue.js' },
+    { id: 'javascript', name: 'JavaScript' },
+    { id: 'css', name: 'CSS & HTML' },
+    { id: 'performance', name: 'Web Performance' }
+  ],
+  backend: [
+    { id: 'nodejs', name: 'Node.js' },
+    { id: 'python', name: 'Python' },
+    { id: 'java', name: 'Java' },
+    { id: 'dotnet', name: '.NET' },
+    { id: 'databases', name: 'Databases' },
+    { id: 'architecture', name: 'System Design' }
+  ],
+  fullstack: [
+    { id: 'javascript', name: 'JavaScript Stack' },
+    { id: 'python', name: 'Python Stack' },
+    { id: 'java', name: 'Java Stack' },
+    { id: 'cloud', name: 'Cloud Services' },
+    { id: 'devops', name: 'DevOps' }
+  ],
+  data: [
+    { id: 'python', name: 'Python for Data Science' },
+    { id: 'ml', name: 'Machine Learning' },
+    { id: 'statistics', name: 'Statistics' },
+    { id: 'bigdata', name: 'Big Data' },
+    { id: 'visualization', name: 'Data Visualization' }
+  ]
+};
+
+export default function NewInterviewPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const [domain, setDomain] = useState<string | null>(null);
+  const [subDomain, setSubDomain] = useState<string | null>(null);
+  const [level, setLevel] = useState<string>('basic');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createInterview = async () => {
+    if (!domain || !subDomain || !level) {
+      setError('Please select a domain, sub-domain, and level');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/interviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain,
+          subDomain,
+          level
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create interview');
+      }
+      
+      const interview = await response.json();
+      
+      toast({
+        title: 'Interview created',
+        description: 'Your interview has been created successfully',
+      });
+      
+      // Redirect to the interview page
+      router.push(`/dashboard/interviews/${interview.id}/take`);
+    } catch (error) {
+      console.error('Error creating interview:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Start a New Interview</h1>
+        <p className="text-muted-foreground">
+          Customize your technical interview by selecting a domain, sub-domain, and difficulty level
+        </p>
+      </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-8">
+        {/* Step 1: Select Domain */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">1. Select Domain</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {domains.map((item) => (
+              <Card 
+                key={item.id}
+                className={`cursor-pointer transition-all ${domain === item.id ? 'ring-2 ring-primary' : 'hover:bg-muted/50'}`}
+                onClick={() => setDomain(item.id)}
+              >
+                <CardHeader className="pb-2">
+                  <item.icon className="h-5 w-5 text-primary mb-2" />
+                  <CardTitle className="text-lg">{item.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    {item.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 2: Select Sub-Domain */}
+        {domain && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">2. Select Sub-Domain</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {subDomains[domain].map((item) => (
+                <div
+                  key={item.id}
+                  className={`p-4 border rounded-md cursor-pointer transition-all ${
+                    subDomain === item.id ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => setSubDomain(item.id)}
+                >
+                  <h3 className="font-medium">{item.name}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Select Level */}
+        {domain && subDomain && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">3. Select Level</h2>
+            <Tabs defaultValue="basic" onValueChange={setLevel}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="basic">Basic</TabsTrigger>
+                <TabsTrigger value="intermediate">Intermediate</TabsTrigger>
+                <TabsTrigger value="advanced">Advanced</TabsTrigger>
+              </TabsList>
+              <TabsContent value="basic" className="p-4 border rounded-md mt-2">
+                <h3 className="font-medium mb-2">Basic Level</h3>
+                <p className="text-muted-foreground">
+                  Suitable for beginners or those with less than 1 year of experience. Covers fundamental concepts and basic implementations.
+                </p>
+              </TabsContent>
+              <TabsContent value="intermediate" className="p-4 border rounded-md mt-2">
+                <h3 className="font-medium mb-2">Intermediate Level</h3>
+                <p className="text-muted-foreground">
+                  For developers with 1-3 years of experience. Includes more complex scenarios and best practices.
+                </p>
+              </TabsContent>
+              <TabsContent value="advanced" className="p-4 border rounded-md mt-2">
+                <h3 className="font-medium mb-2">Advanced Level</h3>
+                <p className="text-muted-foreground">
+                  Designed for senior developers with 3+ years of experience. Covers advanced topics, architecture decisions, and optimization techniques.
+                </p>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+
+        {/* Start Interview Button */}
+        <div className="flex justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard/interviews')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Interviews
+          </Button>
+          
+          <Button 
+            size="lg" 
+            onClick={createInterview} 
+            disabled={!domain || !subDomain || !level || loading}
+          >
+            {loading ? 'Creating...' : 'Start Interview'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}"use client";
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Code, 
+  Database, 
+  Layers, 
+  BarChart, 
+  AlertCircle,
+  ArrowLeft
+} from 'lucide-react';
+
+// Domain options
+const domains = [
+  {
+    id: 'frontend',
+    name: 'Frontend',
+    description: 'Web interfaces and client-side applications',
+    icon: Layers
+  },
+  {
+    id: 'backend',
+    name: 'Backend',
+    description: 'Server-side applications and APIs',
+    icon: Database
+  },
+  {
+    id: 'fullstack',
+    name: 'Full Stack',
+    description: 'End-to-end application development',
+    icon: Code
+  },
+  {
+    id: 'data',
+    name: 'Data Science',
+    description: 'Data analysis and machine learning',
+    icon: BarChart
+  }
+];
+
+// Sub-domain options for each domain
+const subDomains = {
+  frontend: [
+    { id: 'react', name: 'React' },
+    { id: 'angular', name: 'Angular' },
+    { id: 'vue', name: 'Vue.js' },
+    { id: 'javascript', name: 'JavaScript' },
+    { id: 'css', name: 'CSS & HTML' },
+    { id: 'performance', name: 'Web Performance' }
+  ],
+  backend: [
+    { id: 'nodejs', name: 'Node.js' },
+    { id: 'python', name: 'Python' },
+    { id: 'java', name: 'Java' },
+    { id: 'dotnet', name: '.NET' },
+    { id: 'databases', name: 'Databases' },
+    { id: 'architecture', name: 'System Design' }
+  ],
+  fullstack: [
+    { id: 'javascript', name: 'JavaScript Stack' },
+    { id: 'python', name: 'Python Stack' },
+    { id: 'java', name: 'Java Stack' },
+    { id: 'cloud', name: 'Cloud Services' },
+    { id: 'devops', name: 'DevOps' }
+  ],
+  data: [
+    { id: 'python', name: 'Python for Data Science' },
+    { id: 'ml', name: 'Machine Learning' },
+    { id: 'statistics', name: 'Statistics' },
+    { id: 'bigdata', name: 'Big Data' },
+    { id: 'visualization', name: 'Data Visualization' }
+  ]
+};
+
+export default function NewInterviewPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const [domain, setDomain] = useState<string | null>(null);
+  const [subDomain, setSubDomain] = useState<string | null>(null);
+  const [level, setLevel] = useState<string>('basic');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createInterview = async () => {
+    if (!domain || !subDomain || !level) {
+      setError('Please select a domain, sub-domain, and level');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/interviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain,
+          subDomain,
+          level
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create interview');
+      }
+      
+      const interview = await response.json();
+      
+      toast({
+        title: 'Interview created',
+        description: 'Your interview has been created successfully',
+      });
+      
+      // Redirect to the interview page
+      router.push(`/dashboard/interviews/${interview.id}/take`);
+    } catch (error) {
+      console.error('Error creating interview:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-5xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Start a New Interview</h1>
+        <p className="text-muted-foreground">
+          Customize your technical interview by selecting a domain, sub-domain, and difficulty level
+        </p>
+      </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-8">
+        {/* Step 1: Select Domain */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">1. Select Domain</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {domains.map((item) => (
+              <Card 
+                key={item.id}
+                className={`cursor-pointer transition-all ${domain === item.id ? 'ring-2 ring-primary' : 'hover:bg-muted/50'}`}
+                onClick={() => setDomain(item.id)}
+              >
+                <CardHeader className="pb-2">
+                  <item.icon className="h-5 w-5 text-primary mb-2" />
+                  <CardTitle className="text-lg">{item.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    {item.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 2: Select Sub-Domain */}
+        {domain && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">2. Select Sub-Domain</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {subDomains[domain].map((item) => (
+                <div
+                  key={item.id}
+                  className={`p-4 border rounded-md cursor-pointer transition-all ${
+                    subDomain === item.id ? 'bg-primary/10 border-primary' : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => setSubDomain(item.id)}
+                >
+                  <h3 className="font-medium">{item.name}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Select Level */}
+        {domain && subDomain && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">3. Select Level</h2>
+            <Tabs defaultValue="basic" onValueChange={setLevel}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="basic">Basic</TabsTrigger>
+                <TabsTrigger value="intermediate">Intermediate</TabsTrigger>
+                <TabsTrigger value="advanced">Advanced</TabsTrigger>
+              </TabsList>
+              <TabsContent value="basic" className="p-4 border rounded-md mt-2">
+                <h3 className="font-medium mb-2">Basic Level</h3>
+                <p className="text-muted-foreground">
+                  Suitable for beginners or those with less than 1 year of experience. Covers fundamental concepts and basic implementations.
+                </p>
+              </TabsContent>
+              <TabsContent value="intermediate" className="p-4 border rounded-md mt-2">
+                <h3 className="font-medium mb-2">Intermediate Level</h3>
+                <p className="text-muted-foreground">
+                  For developers with 1-3 years of experience. Includes more complex scenarios and best practices.
+                </p>
+              </TabsContent>
+              <TabsContent value="advanced" className="p-4 border rounded-md mt-2">
+                <h3 className="font-medium mb-2">Advanced Level</h3>
+                <p className="text-muted-foreground">
+                  Designed for senior developers with 3+ years of experience. Covers advanced topics, architecture decisions, and optimization techniques.
+                </p>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+
+        {/* Start Interview Button */}
+        <div className="flex justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard/interviews')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Interviews
+          </Button>
+          
+          <Button 
+            size="lg" 
+            onClick={createInterview} 
+            disabled={!domain || !subDomain || !level || loading}
+          >
+            {loading ? 'Creating...' : 'Start Interview'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

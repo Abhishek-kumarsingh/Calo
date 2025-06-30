@@ -1,0 +1,229 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 270 76% 53%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 270 76% 95%;
+    --accent-foreground: 270 76% 40%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 270 76% 53%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 270 76% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 270 76% 20%;
+    --accent-foreground: 270 76% 80%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 270 76% 60%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Background patterns */
+  .bg-grid-pattern {
+    background-size: 100px 100px;
+    background-image: 
+      linear-gradient(to right, theme('colors.gray.200/10') 1px, transparent 1px),
+      linear-gradient(to bottom, theme('colors.gray.200/10') 1px, transparent 1px);
+  }
+  
+  .dark .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, theme('colors.gray.700/10') 1px, transparent 1px),
+      linear-gradient(to bottom, theme('colors.gray.700/10') 1px, transparent 1px);
+  }
+  
+  .bg-dot-pattern {
+    background-image: radial-gradient(theme('colors.gray.300/20') 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .dark .bg-dot-pattern {
+    background-image: radial-gradient(theme('colors.gray.700/20') 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  /* Responsive grid patterns */
+  @media (max-width: 640px) {
+    .bg-grid-pattern {
+      background-size: 50px 50px;
+    }
+    .bg-dot-pattern {
+      background-size: 15px 15px;
+    }
+  }
+  
+  /* Responsive container classes */
+  .container-xs {
+    @apply w-full max-w-screen-sm mx-auto px-4 sm:px-6;
+  }
+  
+  .container-sm {
+    @apply w-full max-w-screen-md mx-auto px-4 sm:px-6 md:px-8;
+  }
+  
+  .container-md {
+    @apply w-full max-w-screen-lg mx-auto px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+  
+  .container-lg {
+    @apply w-full max-w-screen-xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+  
+  .container-xl {
+    @apply w-full max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16;
+  }
+  
+  /* Responsive typography */
+  .text-responsive-xl {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight;
+  }
+  
+  .text-responsive-lg {
+    @apply text-xl sm:text-2xl md:text-3xl font-bold leading-tight tracking-tight;
+  }
+  
+  .text-responsive-md {
+    @apply text-lg sm:text-xl md:text-2xl font-semibold leading-tight;
+  }
+  
+  .text-responsive-sm {
+    @apply text-base sm:text-lg md:text-xl font-medium leading-snug;
+  }
+  
+  /* Responsive spacing */
+  .section-spacing {
+    @apply py-8 sm:py-12 md:py-16 lg:py-20;
+  }
+  
+  .section-spacing-sm {
+    @apply py-6 sm:py-8 md:py-12;
+  }
+  
+  /* Responsive heading spacing */
+  .heading-spacing {
+    @apply mb-4 sm:mb-6 md:mb-8;
+  }
+  
+  .heading-spacing-sm {
+    @apply mb-2 sm:mb-3 md:mb-4;
+  }
+  
+  /* Prevent heading overlap */
+  h1, h2, h3, h4, h5, h6 {
+    @apply overflow-hidden text-ellipsis;
+    max-width: 100%;
+  }
+  
+  /* Responsive heading classes with proper spacing */
+  .heading-xl {
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-4 sm:mb-6 md:mb-8;
+  }
+  
+  .heading-lg {
+    @apply text-2xl sm:text-3xl md:text-4xl font-bold leading-tight tracking-tight mb-3 sm:mb-5 md:mb-6;
+  }
+  
+  .heading-md {
+    @apply text-xl sm:text-2xl md:text-3xl font-semibold leading-tight mb-3 sm:mb-4;
+  }
+  
+  .heading-sm {
+    @apply text-lg sm:text-xl md:text-2xl font-medium leading-snug mb-2 sm:mb-3;
+  }
+  
+  /* Responsive text wrapping for small screens */
+  .text-wrap-balance {
+    text-wrap: balance;
+  }
+  
+  /* Prevent code block overflow in chat messages */
+  .prose pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  .prose code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  /* Ensure long words break properly */
+  .break-long-words {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Hide scrollbar but allow scrolling */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
