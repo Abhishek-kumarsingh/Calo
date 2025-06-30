@@ -177,3 +177,36 @@ class RateLimiter {
 
 // Create rate limiters for different endpoints
 export const apiRateLimiter = new RateLimiter(100); // 100ms between requests
+
+export function handleApiError(error: unknown): never {
+  if (error instanceof Error) {
+    throw createAPIError(error.message, 500);
+  }
+  throw createAPIError('An unknown error occurred', 500);
+}
+
+export const withRetry = async <T>(
+  fn: () => Promise<T>,
+  retries = 3,
+  delay = 1000
+): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries === 0) throw error;
+    await new Promise(resolve => setTimeout(resolve, delay));
+    return withRetry(fn, retries - 1, delay);
+  }
+};
+
+export const interviewApi = {
+  async fetch(url: string, options: FetchOptions = {}) {
+    return fetchWithErrorHandling(url, options);
+  }
+};
+
+export const chatSessionApi = {
+  async fetch(url: string, options: FetchOptions = {}) {
+    return fetchWithErrorHandling(url, options);
+  }
+};

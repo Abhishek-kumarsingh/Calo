@@ -271,13 +271,8 @@ export async function GET(req: NextRequest) {
 
     // Log this admin action
     await logAdminEvent(
-      "view_advanced_analytics",
-      `Admin viewed advanced analytics for the last ${period} days`,
-      authCheck.user._id.toString(),
-      undefined,
-      undefined,
-      "success",
-      req
+      { action: "view_advanced_analytics", period },
+      authCheck.user._id.toString()
     );
 
     // Return the analytics data

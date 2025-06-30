@@ -38,8 +38,8 @@ export function DatePicker({ date, setDate, className, placeholder = "Pick a dat
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={setDate}
+          selected={date || undefined}
+          onSelect={(day: Date | undefined) => setDate(day || null)}
           initialFocus
         />
       </PopoverContent>

@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+declare global {
+  var mongoose: {
+    conn: mongoose.Mongoose | null;
+    promise: Promise<mongoose.Mongoose> | null;
+  } | undefined;
+}
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/interviewai';
 
 if (!MONGODB_URI) {
@@ -20,6 +27,10 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
+  if (!cached) {
+    throw new Error('MongoDB cache not initialized');
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -29,13 +40,14 @@ async function connectToDatabase() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+      cached.conn = mongooseInstance;
+      return mongooseInstance;
     });
   }
 
   try {
-    cached.conn = await cached.promise;
+    await cached.promise;
   } catch (e) {
     cached.promise = null;
     throw e;

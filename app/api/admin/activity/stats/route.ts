@@ -129,14 +129,10 @@ export async function GET(req: NextRequest) {
     ]).then(result => (result.length > 0 ? result[0].total : 0));
 
     // Log this admin action
+    // Log admin action
     await logAdminEvent(
-      "view_activity_stats",
-      `Admin viewed activity statistics for the last ${days} days`,
-      authCheck.user._id.toString(),
-      undefined,
-      undefined,
-      "success",
-      req
+      { action: "view_activity_stats", days },
+      authCheck.user._id.toString()
     );
 
     // Return statistics
