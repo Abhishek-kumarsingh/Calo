@@ -1,31 +1,16 @@
 import './globals.css';
-import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { ResponsiveThemeProvider } from '@/components/responsive-theme-provider';
-import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from '@/components/theme-provider';
 import { NextAuthProvider } from '@/contexts/session-provider';
-import { AOSProvider } from '@/components/aos-provider';
-import { ImpersonationWrapper } from '@/components/impersonation-wrapper';
-import { TaskInitializer } from '@/components/task-initializer';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'InterviewAI - AI-Powered Interview Platform',
-  description: 'Schedule and conduct AI-powered interviews with real-time feedback and analysis',
-  authors: [{ name: 'InterviewAI Team' }],
-  keywords: ['interview', 'AI', 'hiring', 'recruitment', 'job interview'],
-};
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f0f0f' },
-  ],
+export const metadata = {
+  title: 'Calo - AI-Powered Interview Platform',
+  description: 'Conduct and analyze technical interviews with AI assistance',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
 export default function RootLayout({
@@ -36,17 +21,19 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <NextAuthProvider>
-          <ResponsiveThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <AOSProvider>
-              <ImpersonationWrapper>
-                {children}
-              </ImpersonationWrapper>
-              <TaskInitializer />
-            </AOSProvider>
-            <Toaster />
-          </ResponsiveThemeProvider>
-        </NextAuthProvider>
+        <ErrorBoundary>
+          <NextAuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </NextAuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

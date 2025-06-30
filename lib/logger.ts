@@ -1,164 +1,157 @@
-import { NextRequest } from 'next/server';
-import SystemLogModel, { ISystemLog } from './models/SystemLog';
-import connectToDatabase from './mongodb';
-import mongoose from 'mongoose';
+import { MongoClient, ObjectId } from 'mongodb';
+import { getMongoDb } from './mongodb';
 
-interface LogParams {
+type LogSeverity = 'debug' | 'info' | 'warning' | 'error' | 'critical';
+
+interface LogEvent {
+  timestamp: Date;
   action: string;
-  category: 'auth' | 'user' | 'interview' | 'question' | 'admin' | 'system';
-  details: string;
+  category: string;
+  details?: Record<string, unknown>;
   userId?: string;
   resourceId?: string;
-  resourceType?: 'User' | 'Interview' | 'Question' | 'Candidate' | 'QuestionBank';
-  status?: 'success' | 'failure' | 'warning' | 'info';
-  request?: NextRequest;
+  severity: LogSeverity;
+  source?: string;
+  ip?: string;
+  userAgent?: string;
+  sessionId?: string;
+  correlationId?: string;
+  duration?: number;
+  tags?: string[];
 }
 
-/**
- * Log a system event
- * @param params Log parameters
- * @returns Promise that resolves to the created log entry
- */
-export async function logSystemEvent(params: LogParams): Promise<ISystemLog> {
-  try {
-    // Connect to the database
-    await connectToDatabase();
+interface LogOptions {
+  userId?: string;
+  resourceId?: string;
+  source?: string;
+  ip?: string;
+  userAgent?: string;
+  sessionId?: string;
+  correlationId?: string;
+  duration?: number;
+  tags?: string[];
+}
 
-    // Extract request information if available
-    let ipAddress = undefined;
-    let userAgent = undefined;
+const MAX_LOG_SIZE = 10 * 1024; // 10KB limit for log details
 
-    if (params.request) {
-      // Get IP address
-      ipAddress = params.request.headers.get('x-forwarded-for') || 
-                  params.request.headers.get('x-real-ip') || 
-                  'unknown';
-      
-      // Get user agent
-      userAgent = params.request.headers.get('user-agent') || 'unknown';
+function sanitizeLogDetails(details: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  
+  for (const [key, value] of Object.entries(details)) {
+    // Remove sensitive data patterns
+    if (
+      key.toLowerCase().includes('password') ||
+      key.toLowerCase().includes('token') ||
+      key.toLowerCase().includes('secret') ||
+      key.toLowerCase().includes('key')
+    ) {
+      sanitized[key] = '[REDACTED]';
+      continue;
     }
 
-    // Create log entry
-    const logEntry = new SystemLogModel({
-      action: params.action,
-      category: params.category,
-      details: params.details,
-      userId: params.userId ? new mongoose.Types.ObjectId(params.userId) : undefined,
-      resourceId: params.resourceId ? new mongoose.Types.ObjectId(params.resourceId) : undefined,
-      resourceType: params.resourceType,
-      ipAddress,
-      userAgent,
-      status: params.status || 'info'
-    });
+    // Handle different value types
+    if (value === null || value === undefined) {
+      sanitized[key] = null;
+    } else if (typeof value === 'object') {
+      sanitized[key] = sanitizeLogDetails(value as Record<string, unknown>);
+    } else if (value instanceof Error) {
+      sanitized[key] = {
+        message: value.message,
+        name: value.name,
+        stack: value.stack,
+      };
+    } else {
+      sanitized[key] = value;
+    }
+  }
 
-    // Save log entry
-    await logEntry.save();
-    
-    return logEntry;
+  return sanitized;
+}
+
+async function saveLog(event: LogEvent): Promise<void> {
+  try {
+    const db = await getMongoDb();
+    const collection = db.collection('systemLogs');
+
+    // Ensure log details don't exceed size limit
+    if (event.details) {
+      const detailsSize = JSON.stringify(event.details).length;
+      if (detailsSize > MAX_LOG_SIZE) {
+        event.details = {
+          original_size: detailsSize,
+          truncated: true,
+          message: 'Log details exceeded size limit and were truncated',
+        };
+      }
+    }
+
+    await collection.insertOne(event);
   } catch (error) {
-    // Log to console if database logging fails
-    console.error('Failed to log system event:', error);
-    console.error('Event details:', params);
-    
-    // Return a dummy log entry
-    return {
-      _id: new mongoose.Types.ObjectId(),
-      action: params.action,
-      category: params.category,
-      details: params.details,
-      status: params.status || 'info',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    } as ISystemLog;
+    console.error('Failed to save log:', error);
+    // For critical errors, attempt to write to a backup location or notify
+    if (event.severity === 'critical') {
+      console.error('CRITICAL LOG FAILED TO SAVE:', JSON.stringify(event));
+    }
   }
 }
 
-/**
- * Log an authentication event
- */
-export async function logAuthEvent(
-  action: string, 
-  details: string, 
-  userId?: string, 
-  status: 'success' | 'failure' | 'warning' | 'info' = 'info',
-  request?: NextRequest
-): Promise<ISystemLog> {
-  return logSystemEvent({
+export async function log(
+  action: string,
+  category: string,
+  details: Record<string, unknown>,
+  severity: LogSeverity = 'info',
+  options: LogOptions = {}
+): Promise<void> {
+  const sanitizedDetails = sanitizeLogDetails(details);
+
+  const event: LogEvent = {
+    timestamp: new Date(),
     action,
-    category: 'auth',
-    details,
-    userId,
-    status,
-    request
-  });
+    category,
+    details: sanitizedDetails,
+    severity,
+    ...options,
+  };
+
+  await saveLog(event);
 }
 
-/**
- * Log a user management event
- */
-export async function logUserEvent(
-  action: string, 
-  details: string, 
-  userId: string,
-  targetUserId?: string,
-  status: 'success' | 'failure' | 'warning' | 'info' = 'success',
-  request?: NextRequest
-): Promise<ISystemLog> {
-  return logSystemEvent({
-    action,
-    category: 'user',
-    details,
-    userId,
-    resourceId: targetUserId,
-    resourceType: 'User',
-    status,
-    request
-  });
-}
+// Convenience methods for different log levels
+export const logDebug = (action: string, category: string, details: Record<string, unknown>, options?: LogOptions) =>
+  log(action, category, details, 'debug', options);
 
-/**
- * Log an interview event
- */
-export async function logInterviewEvent(
-  action: string, 
-  details: string, 
-  userId: string,
-  interviewId?: string,
-  status: 'success' | 'failure' | 'warning' | 'info' = 'success',
-  request?: NextRequest
-): Promise<ISystemLog> {
-  return logSystemEvent({
-    action,
-    category: 'interview',
-    details,
-    userId,
-    resourceId: interviewId,
-    resourceType: 'Interview',
-    status,
-    request
-  });
-}
+export const logInfo = (action: string, category: string, details: Record<string, unknown>, options?: LogOptions) =>
+  log(action, category, details, 'info', options);
 
-/**
- * Log an admin action
- */
-export async function logAdminEvent(
-  action: string, 
-  details: string, 
-  adminId: string,
-  resourceId?: string,
-  resourceType?: 'User' | 'Interview' | 'Question' | 'Candidate' | 'QuestionBank',
-  status: 'success' | 'failure' | 'warning' | 'info' = 'success',
-  request?: NextRequest
-): Promise<ISystemLog> {
-  return logSystemEvent({
-    action,
-    category: 'admin',
-    details,
-    userId: adminId,
-    resourceId,
-    resourceType,
-    status,
-    request
-  });
-}
+export const logWarning = (action: string, category: string, details: Record<string, unknown>, options?: LogOptions) =>
+  log(action, category, details, 'warning', options);
+
+export const logError = (action: string, category: string, details: Record<string, unknown>, options?: LogOptions) =>
+  log(action, category, details, 'error', options);
+
+export const logCritical = (action: string, category: string, details: Record<string, unknown>, options?: LogOptions) =>
+  log(action, category, details, 'critical', options);
+
+// Specialized logging functions
+export const logSystemEvent = (details: Record<string, unknown>) =>
+  log('system_event', 'system', details);
+
+export const logAuthEvent = (details: Record<string, unknown>, userId?: string) =>
+  log('auth_event', 'auth', details, 'info', { userId });
+
+export const logUserEvent = (details: Record<string, unknown>, userId: string) =>
+  log('user_event', 'user', details, 'info', { userId });
+
+export const logInterviewEvent = (details: Record<string, unknown>, userId: string, interviewId: string) =>
+  log('interview_event', 'interview', details, 'info', { userId, resourceId: interviewId });
+
+export const logAdminEvent = (details: Record<string, unknown>, adminId: string) =>
+  log('admin_event', 'admin', details, 'info', { userId: adminId });
+
+// Performance monitoring
+export const logPerformance = (action: string, duration: number, details: Record<string, unknown> = {}) =>
+  log(action, 'performance', { ...details, duration }, 'info', { duration });
+
+// Security events
+export const logSecurityEvent = (details: Record<string, unknown>, severity: LogSeverity = 'warning') =>
+  log('security_event', 'security', details, severity);
