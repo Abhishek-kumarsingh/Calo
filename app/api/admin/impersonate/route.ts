@@ -86,13 +86,15 @@ export async function POST(req: NextRequest) {
 
     // Log this admin action
     await logAdminEvent(
-      "impersonate_user",
-      `Admin impersonated user: ${targetUser.name} (${targetUser.email})`,
-      authCheck.user._id.toString(),
-      targetUser._id.toString(),
-      "User",
-      "success",
-      req
+      {
+        action: "impersonate_user",
+        targetUser: {
+          name: targetUser.name,
+          email: targetUser.email,
+          id: targetUser._id.toString()
+        }
+      },
+      authCheck.user._id.toString()
     );
 
     // Create impersonation token with original admin ID for tracking
@@ -168,13 +170,11 @@ export async function GET(req: NextRequest) {
 
       // Log this action
       await logAdminEvent(
-        "end_impersonation",
-        `Admin ended impersonation of user ID: ${impersonationToken.impersonatedUserId}`,
-        adminUser._id.toString(),
-        impersonationToken.impersonatedUserId,
-        "User",
-        "success",
-        req
+        {
+          action: "end_impersonation",
+          impersonatedUserId: impersonationToken.impersonatedUserId
+        },
+        adminUser._id.toString()
       );
 
       // Return success
