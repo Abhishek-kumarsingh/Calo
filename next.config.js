@@ -8,6 +8,10 @@ const nextConfig = {
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   },
+  webpack: (config) => {
+    config.externals.push('mongodb-client-encryption');
+    return config;
+  },
 };
 
 module.exports = nextConfig;
