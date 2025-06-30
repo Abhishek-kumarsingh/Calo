@@ -152,9 +152,9 @@ export async function GET(req: NextRequest) {
     }));
 
     // Log this admin action
-    await logAdminEvent(
-      "view_logs",
-      `Admin viewed system logs with filters: ${JSON.stringify({
+    await logAdminEvent({
+      action: "view_logs",
+      message: `Admin viewed system logs with filters: ${JSON.stringify({
         category,
         status,
         userId,
@@ -162,12 +162,12 @@ export async function GET(req: NextRequest) {
         endDate,
         search
       })}`,
-      authCheck.user._id.toString(),
-      undefined,
-      undefined,
-      "success",
-      req
-    );
+      resourceId: undefined,
+      resourceType: undefined,
+      status: "success",
+      ipAddress: req.ip,
+      userAgent: req.headers.get("user-agent")
+    }, authCheck.user._id.toString());
 
     // Return logs with pagination metadata
     return NextResponse.json({
