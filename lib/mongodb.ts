@@ -44,4 +44,5 @@ async function connectToDatabase() {
   return cached.conn;
 }
 
+export const getMongoDb = connectToDatabase;
 export default connectToDatabase;

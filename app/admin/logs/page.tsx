@@ -25,6 +25,8 @@ import {
   Info,
   AlertTriangle,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
@@ -63,8 +65,8 @@ export default function LogsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState<string>("");
   const [status, setStatus] = useState<string>("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [pagination, setPagination] = useState<PaginationData>({
     total: 0,
     page: 1,
@@ -187,8 +189,8 @@ export default function LogsPage() {
     setSearchTerm("");
     setCategory("");
     setStatus("");
-    setStartDate(undefined);
-    setEndDate(undefined);
+    setStartDate(null);
+    setEndDate(null);
     fetchLogs(1);
   };
 
@@ -391,10 +393,15 @@ export default function LogsPage() {
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious 
+                    <Button
+                      variant="ghost"
+                      className="gap-1 pl-2.5"
                       onClick={() => handlePageChange(Math.max(1, pagination.page - 1))}
                       disabled={pagination.page === 1}
-                    />
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span>Previous</span>
+                    </Button>
                   </PaginationItem>
                   
                   {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
@@ -423,10 +430,15 @@ export default function LogsPage() {
                   })}
                   
                   <PaginationItem>
-                    <PaginationNext 
+                    <Button
+                      variant="ghost"
+                      className="gap-1 pr-2.5"
                       onClick={() => handlePageChange(Math.min(pagination.totalPages, pagination.page + 1))}
                       disabled={pagination.page === pagination.totalPages}
-                    />
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
