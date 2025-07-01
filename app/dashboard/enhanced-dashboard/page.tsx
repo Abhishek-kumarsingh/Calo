@@ -54,7 +54,7 @@ import {
   Filter,
   Download,
 } from "lucide-react";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils";
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 
 // Import recharts components
 import {
@@ -346,7 +346,7 @@ export default function EnhancedDashboardPage() {
   useEffect(() => {
     if (sessionStatus === "authenticated") {
       fetchDashboardData();
-    } else if (sessionStatus === "unauthenticated" && sessionStatus !== "loading") {
+    } else if (sessionStatus === "unauthenticated") {
       router.push("/auth/login");
     }
   }, [sessionStatus, fetchDashboardData, router]);

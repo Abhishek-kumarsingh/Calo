@@ -5,6 +5,9 @@
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"; // Base URL of your backend
 
+// Unified Gemini/Claude API key support
+const GEMINI_CLAUDE_API_KEY = process.env.NEXT_PUBLIC_GEMINI_CLAUDE_API_KEY;
+
 /**
  * Standard fetch wrapper with error handling
  * This function now assumes the backend might return the main data directly
@@ -302,4 +305,26 @@ export async function withRetry<T>(
       );
     }
   }
+}
+
+export async function fetchGemini(endpoint: string, options: RequestInit = {}) {
+  return fetch(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      "Authorization": `Bearer ${GEMINI_CLAUDE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function fetchClaude(endpoint: string, options: RequestInit = {}) {
+  return fetch(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      "Authorization": `Bearer ${GEMINI_CLAUDE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+  });
 }
