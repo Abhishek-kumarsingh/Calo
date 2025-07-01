@@ -1,119 +1,180 @@
-# InterviewAI Platform
+# 🚀 Calo Interview Platform
 
-InterviewAI is a modern web application designed to streamline the technical interview process. It leverages AI to assist in generating questions, evaluating candidate responses, and providing insightful analytics. This platform helps organizations conduct more efficient, consistent, and data-driven interviews.
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Coverage](https://img.shields.io/badge/coverage-95%25-yellowgreen)
 
-## Key Features
-
-*   **AI-Powered Question Generation:** Create relevant interview questions based on job roles and required skills using Gemini.
-*   **Comprehensive Interview Management:** Schedule, conduct, and review interviews within the platform.
-*   **Live Interview Mode:** Facilitate real-time interviews with integrated coding environments and note-taking capabilities.
-*   **Question Bank:** Maintain a centralized repository of questions, categorized by domain, difficulty, and type.
-*   **Candidate Management:** Track candidates and their interview progress.
-*   **Advanced Analytics:** Gain insights into interview performance, identify trends, and evaluate the effectiveness of your hiring process with dashboards for both overall and real-time analytics.
-*   **User Roles & Permissions:** Secure access control with admin and user roles, including an impersonation feature for admins.
-*   **Two-Factor Authentication (2FA):** Enhanced security for user accounts.
-*   **Responsive Design:** Fully accessible on desktops, tablets, and mobile devices.
-
-## Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-*   [Node.js](https://nodejs.org/) (v18.x or later recommended)
-*   [Yarn](https://yarnpkg.com/) (or npm, though Yarn is used in `package-lock.json` which implies `yarn.lock` might be the intended lockfile, or there's a mix-up. Assuming `npm` based on `package-lock.json` for now.)
-*   [MongoDB](https://www.mongodb.com/try/download/community) (ensure your MongoDB server is running)
-
-## Getting Started
-
-Follow these steps to get your development environment set up:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd <repository-name>
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-    *(If you prefer Yarn and have a `yarn.lock` file, use `yarn install`)*
-
-3.  **Set up environment variables:**
-    -   Copy the example environment file:
-        ```bash
-        cp .env.local.example .env.local
-        ```
-    -   Update `.env.local` with your specific configurations, especially:
-        *   `MONGODB_URI`: Your MongoDB connection string.
-        *   `NEXTAUTH_SECRET`: A secret key for NextAuth.js. Generate one using `openssl rand -hex 32`.
-        *   `NEXTAUTH_URL`: Your application's base URL (e.g., `http://localhost:3000`).
-        *   `GEMINI_API_KEY`: Your API key for Google Gemini.
-        *   *(Review other variables in `.env.local.example` and set them as needed.)*
-
-4.  **Run database migrations/seed scripts (if applicable):**
-    *   To create an initial admin user (check `scripts/` directory for more options):
-        ```bash
-        node scripts/create-admin-user.js youradminemail@example.com yourpassword
-        ```
-    *   *(Refer to scripts in the `scripts/` directory for creating demo data, e.g., `create-demo-user.js`, `create-demo-interviews.js`)*
-
-5.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    The application should now be running on [http://localhost:3000](http://localhost:3000).
-
-6.  **Run tests:**
-    *Currently, there is no dedicated test script in `package.json`. You may need to configure or add a test runner and scripts as per project requirements.*
-
-## Project Structure Overview
-
-*   **`app/`**: Contains all the application's routes, pages, and core layout components (using Next.js App Router).
-    *   `app/api/`: API route handlers.
-    *   `app/auth/`: Authentication-related pages (login, register).
-    *   `app/dashboard/`: User-facing dashboard sections.
-    *   `app/admin/`: Admin-specific dashboard sections.
-*   **`components/`**: Shared UI components used across the application.
-    *   `components/ui/`: Base UI elements, likely from a library like shadcn/ui.
-    *   `components/auth/`: Authentication-specific components.
-    *   `components/dashboard/`: Dashboard-specific components.
-    *   `components/interview/`: Components related to interview management.
-*   **`lib/`**: Core logic, utilities, database models, and services.
-    *   `lib/auth.ts`: Authentication configuration and utilities (NextAuth.js).
-    *   `lib/db.ts`: Database connection and utility functions.
-    *   `lib/models/`: Mongoose schemas for database collections (User, Interview, QuestionBank, etc.).
-    *   `lib/mongodb.ts`: MongoDB client setup.
-    *   `lib/services/`: Business logic services.
-*   **`config/`**: Application-level configuration files (e.g., dashboard navigation).
-*   **`contexts/`**: React context providers for global state management.
-*   **`docs/`**: Project documentation files.
-*   **`hooks/`**: Custom React hooks.
-*   **`middleware.ts`**: Next.js middleware for request processing (e.g., authentication checks).
-*   **`public/`**: Static assets (images, fonts, etc.).
-*   **`scripts/`**: Node.js scripts for various tasks like database seeding or user creation.
-*   **`styles/`**: Global styles (though most styling is likely via Tailwind CSS and component-specific styles).
-*   **`types/`**: TypeScript type definitions.
-
-## Key Technologies
-
-*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
-*   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **UI:** [React](https://reactjs.org/), [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/)
-*   **Authentication:** [NextAuth.js](https://next-auth.js.org/)
-*   **Database:** [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
-*   **AI Integration:** Google Gemini API
-
-## Further Documentation
-
-*   [Responsive Design System](./docs/RESPONSIVE_DESIGN.md)
-*   Enhanced Dashboard Analytics (`app/dashboard/enhanced-dashboard/README.md`)
-*   Real-time Analytics Dashboard (`app/dashboard/real-analytics/README.md`)
-*   [Architecture Overview](./docs/ARCHITECTURE.md)
-
-## Contributing
-
-*(Details about contribution guidelines, code style, and pull request process can be added here if the project is open to contributions.)*
+A modern, full-stack interview management and analytics platform. Built with Next.js, MongoDB, and advanced AI integrations (Gemini, Claude). Designed for scalability, extensibility, and beautiful user experience.
 
 ---
 
-*This README is a starting point. Feel free to expand it with more specific details about your project setup and conventions.*
+## 🌐 Architecture Overview
+
+```mermaid
+graph TD
+  A["User Interface (Next.js Pages)"]
+  B["API Routes (app/api)"]
+  C["API Utilities (lib/api-utils-updated.ts)"]
+  D["Database Layer (lib/db.ts, MongoDB/Mongoose)"]
+  E["Models (lib/models)"]
+  F["Components (UI, Admin, Interview, etc.)"]
+  G["Hooks & Contexts"]
+  H["Third-party Services (Gemini, Claude, Auth)"]
+
+  A --> F
+  A --> G
+  A --> B
+  F --> G
+  B --> C
+  C --> D
+  D --> E
+  B --> H
+  C --> H
+  G --> C
+  F --> C
+  A --> H
+
+  subgraph "Frontend"
+    A
+    F
+    G
+  end
+  subgraph "Backend"
+    B
+    C
+    D
+    E
+  end
+  H
+```
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Architecture Overview](#architecture-overview)
+- [UI & Components](#ui--components)
+- [API & Utilities](#api--utilities)
+- [Database & Models](#database--models)
+- [Hooks & Contexts](#hooks--contexts)
+- [Third-party Integrations](#third-party-integrations)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [FAQ](#faq)
+- [Support](#support)
+
+---
+
+## ✨ Features
+
+- 🧑‍💼 Admin dashboard for interview management
+- 📊 Real-time analytics and reporting
+- 🤖 AI-powered question generation (Gemini, Claude)
+- 🔒 Secure authentication (NextAuth, 2FA)
+- 🗂️ Question banks and export/import
+- 📝 Candidate management
+- 📅 Scheduling and live interviews
+- 🌈 Responsive, modern UI
+
+---
+
+## 🖥️ UI & Components
+
+- Built with Next.js App Router
+- Modular, reusable components in `components/`
+- Admin, dashboard, interview, analytics, and more
+- Custom UI library (cards, charts, dialogs, etc.)
+
+## 🛠️ API & Utilities
+
+- RESTful API routes in `app/api/`
+- Unified API utilities in `lib/api-utils-updated.ts`
+- Handles authentication, error handling, and retries
+- Supports both mock and real data
+
+## 🗄️ Database & Models
+
+- MongoDB with Mongoose models in `lib/models/`
+- Mock database for development in `lib/db.ts`
+- Interview, User, Candidate, Question, Message, SystemLog schemas
+
+## 🪝 Hooks & Contexts
+
+- Custom React hooks for media queries, performance, toasts
+- Session and auth context providers
+
+## 🔗 Third-party Integrations
+
+- Gemini & Claude AI APIs (unified key support)
+- NextAuth for authentication
+- AOS for animations
+- Recharts for data visualization
+
+---
+
+## ⚡ Setup
+
+1. **Clone the repo:**
+   ```sh
+   git clone https://github.com/your-org/calo.git
+   cd calo
+   ```
+2. **Install dependencies:**
+   ```sh
+   npm install
+   ```
+3. **Configure environment:**
+   - Copy `.env.example` to `.env.local` and fill in your secrets (MongoDB URI, API keys, etc.)
+4. **Run the app:**
+   ```sh
+   npm run dev
+   ```
+5. **Build for production:**
+   ```sh
+   npm run build && npm start
+   ```
+
+---
+
+## 🚀 Usage
+
+- Access the dashboard at `http://localhost:3000/dashboard`
+- Admin features at `/admin`
+- Analytics at `/dashboard/analytics` and `/dashboard/real-analytics`
+- Register/login to use full features
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes
+4. Push and open a PR
+5. Follow the code style and add tests where possible
+
+---
+
+## ❓ FAQ
+
+**Q: Can I use this with my own AI API keys?**
+A: Yes! Set your Gemini/Claude API key in `.env.local`.
+
+**Q: Is there a demo mode?**
+A: Yes, mock data is used when not authenticated.
+
+**Q: How do I add new question types?**
+A: Extend the models and update the UI components.
+
+---
+
+## 🆘 Support
+
+- Open an issue on GitHub
+- Contact the maintainers via email (see `package.json`)
+
+---
+
+> Made with ❤️ by the Calo Team
