@@ -223,9 +223,8 @@ export function QuestionBankBatchExport({
                 <Select
                   value={exportFormat}
                   onValueChange={setExportFormat}
-                  className="mt-1"
                 >
-                  <SelectTrigger id="export-format">
+                  <SelectTrigger id="export-format" className="mt-1">
                     <SelectValue placeholder="Select format" />
                   </SelectTrigger>
                   <SelectContent>
@@ -333,9 +332,8 @@ export function QuestionBankBatchExport({
               <Select
                 value={exportFormat}
                 onValueChange={setExportFormat}
-                className="mt-1"
               >
-                <SelectTrigger id="export-format">
+                <SelectTrigger id="export-format" className="mt-1">
                   <SelectValue placeholder="Select format" />
                 </SelectTrigger>
                 <SelectContent>

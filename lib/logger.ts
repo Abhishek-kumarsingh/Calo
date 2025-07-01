@@ -71,6 +71,7 @@ function sanitizeLogDetails(details: Record<string, unknown>): Record<string, un
 async function saveLog(event: LogEvent): Promise<void> {
   try {
     const db = await getMongoDb();
+    if (!db) throw new Error('MongoDB connection is null');
     const collection = db.collection('systemLogs');
 
     // Ensure log details don't exceed size limit
