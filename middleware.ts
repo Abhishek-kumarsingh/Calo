@@ -47,7 +47,10 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/auth/register');
 
   // Get the token
-  const token = await getToken({ req: request });
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET 
+  });
 
   console.log(`Middleware - Path: ${pathname}, Token:`, token ? `Found (role: ${token.role})` : 'Not found');
 
