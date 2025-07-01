@@ -47,7 +47,7 @@ const InterviewShareLink = ({
   </Card>
 );
 
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils";
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 import { Badge } from "@/components/ui/badge";
 
 // This Question type is for distinct questions, not the embedded AI ones initially
@@ -237,9 +237,7 @@ export default function InterviewSetupPage({
       // Pass all the question configuration to ensure it's used correctly
       const responseData = await interviewApi.generateAiQuestions(
         params.id,
-        questionQuantity,
-        interview.questionTypes,
-        interview.questionTypeDistribution
+        questionQuantity
       );
       console.log(`Generate AI questions API response (raw):`, responseData);
 

@@ -65,7 +65,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils"; // Your API utilities
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated"; // Your API utilities
 import { Badge } from "@/components/ui/badge";
 
 // --- Domain and Level constants (as in your provided code) ---

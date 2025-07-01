@@ -20,7 +20,7 @@ import {
   ArrowLeft,
   AlertCircle
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format as dateFnsFormat } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
 import Link from 'next/link';
 import { QuestionBankDetails } from '@/components/question-bank/question-bank-details';
@@ -115,7 +115,7 @@ export default function QuestionBankDetailPage({ params }: { params: { id: strin
         // This is a simplified version - in a real app, you'd use a library like jsPDF
         fileContent = `# ${questionBank?.title}\n\n`;
         fileContent += `Domain: ${questionBank?.domain} | Sub-domain: ${questionBank?.subDomain} | Level: ${questionBank?.level}\n\n`;
-        fileContent += `Exported on: ${format(new Date(), 'PPP')}\n\n`;
+        fileContent += `Exported on: ${dateFnsFormat(new Date(), 'PPP')}\n\n`;
         fileContent += `---\n\n`;
 
         questionBank?.questions.forEach((question, index) => {
@@ -152,7 +152,7 @@ export default function QuestionBankDetailPage({ params }: { params: { id: strin
           const correctOption = question.correctOption !== undefined && question.correctOption !== null ?
             (question.options ? question.options[question.correctOption] : '') : '';
           const explanation = question.explanation ? `"${question.explanation.replace(/"/g, '""')}"` : '';
-          const createdDate = question.createdAt ? format(new Date(question.createdAt), 'yyyy-MM-dd') : '';
+          const createdDate = question.createdAt ? dateFnsFormat(new Date(question.createdAt), 'yyyy-MM-dd') : '';
 
           fileContent += `"${question.question.replace(/"/g, '""')}",${question.type},${options},${correctOption},${explanation},${createdDate}\n`;
         });
@@ -166,7 +166,7 @@ export default function QuestionBankDetailPage({ params }: { params: { id: strin
           domain: questionBank?.domain,
           subDomain: questionBank?.subDomain,
           level: questionBank?.level,
-          exportDate: format(new Date(), 'yyyy-MM-dd'),
+          exportDate: dateFnsFormat(new Date(), 'yyyy-MM-dd'),
           questions: questionBank?.questions.map(q => ({
             question: q.question,
             type: q.type,

@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { interviewApi, handleApiError } from "@/lib/api-utils";
+import { interviewApi, handleApiError } from "@/lib/api-utils-updated";
 import {
   Plus,
   Search,
@@ -251,45 +251,37 @@ export default function InterviewsPage() {
 
       console.log(`Attempting to batch delete ${selectedInterviews.length} interviews...`);
 
-      // Use the batch delete API
-      const result = await interviewApi.batchDeleteInterviews(selectedInterviews);
-
-      console.log('Batch delete result:', result);
-
-      // Update the UI based on the result
-      if (result && result.deletedCount) {
-        // Update success count
+      // Batch delete using deleteInterview for each selected interview
+      let successIds: string[] = [];
+      let failedIds: string[] = [];
+      for (let i = 0; i < selectedInterviews.length; i++) {
+        const id = selectedInterviews[i];
+        try {
+          await interviewApi.deleteInterview(id);
+          successIds.push(id);
+        } catch (err) {
+          failedIds.push(id);
+        }
         setDeletionProgress(prev => ({
           ...prev,
-          current: totalCount,
-          success: result.deletedCount,
-          failed: totalCount - result.deletedCount
+          current: i + 1,
+          success: successIds.length,
+          failed: failedIds.length
         }));
+      }
 
-        // Remove deleted interviews from the UI
-        if (result.successIds && Array.isArray(result.successIds)) {
-          // If we have specific IDs that were successfully deleted
-          setInterviews(prevInterviews =>
-            prevInterviews.filter(interview => !result.successIds.includes(interview.id))
-          );
-        } else {
-          // Fallback to removing all selected interviews
-          setInterviews(prevInterviews =>
-            prevInterviews.filter(interview => !selectedInterviews.includes(interview.id))
-          );
-        }
+      // Remove deleted interviews from the UI
+      setInterviews(prevInterviews =>
+        prevInterviews.filter(interview => !successIds.includes(interview.id))
+      );
+      // Clear selection
+      setSelectedInterviews([]);
 
-        // Clear selection
-        setSelectedInterviews([]);
-
-        // Show success message with details about failed deletions if any
-        if (result.failedIds && result.failedIds.length > 0) {
-          alert(`Successfully deleted ${result.deletedCount} interview${result.deletedCount !== 1 ? 's' : ''}. Failed to delete ${result.failedIds.length} interview${result.failedIds.length !== 1 ? 's' : ''}.`);
-        } else {
-          alert(`Successfully deleted ${result.deletedCount} interview${result.deletedCount !== 1 ? 's' : ''}.`);
-        }
+      // Show success message with details about failed deletions if any
+      if (failedIds.length > 0) {
+        alert(`Successfully deleted ${successIds.length} interview${successIds.length !== 1 ? 's' : ''}. Failed to delete ${failedIds.length} interview${failedIds.length !== 1 ? 's' : ''}.`);
       } else {
-        throw new Error('Failed to delete interviews. No interviews were deleted.');
+        alert(`Successfully deleted ${successIds.length} interview${successIds.length !== 1 ? 's' : ''}.`);
       }
 
       // Reset document title

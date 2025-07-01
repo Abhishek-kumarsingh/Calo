@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { QuestionTypeSelector } from "@/components/interview/question-type-selector";
 import { QuestionBankList } from "@/components/interview/question-bank-list";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils";
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 import { cn } from "@/lib/utils";
 
 // --- Constants for Domains, SubDomains, Levels ---

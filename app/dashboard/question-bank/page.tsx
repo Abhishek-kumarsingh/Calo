@@ -35,6 +35,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { interviewApi } from '@/lib/api-utils';
 import { QuestionBankBatchExport } from '@/components/question-bank/question-bank-batch-export';
+import { useRouter } from 'next/navigation';
 
 interface Question {
   question: string;
@@ -65,6 +66,7 @@ interface QuestionBank {
 }
 
 export default function QuestionBankPage() {
+  const router = useRouter();
   const [questionBanks, setQuestionBanks] = useState<QuestionBank[]>([]);
   const [filteredBanks, setFilteredBanks] = useState<QuestionBank[]>([]);
   const [loading, setLoading] = useState(true);

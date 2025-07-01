@@ -27,7 +27,7 @@ import {
   Code,
   MessageSquare,
 } from "lucide-react";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils"; // Ensure these are implemented
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 import { Badge } from "@/components/ui/badge";
 
 // Frontend type for a question being *displayed* during the interview

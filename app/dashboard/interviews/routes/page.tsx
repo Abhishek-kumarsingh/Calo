@@ -145,7 +145,7 @@ export default function InterviewRoutesPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="truncate">{interview.title}</span>
-                    <Badge variant={interview.status === 'completed' ? 'success' : 'default'}>
+                    <Badge variant={interview.status === 'completed' ? 'default' : 'default'}>
                       {interview.status}
                     </Badge>
                   </CardTitle>

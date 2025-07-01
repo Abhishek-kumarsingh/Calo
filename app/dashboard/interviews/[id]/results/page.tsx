@@ -28,7 +28,7 @@ import {
   ServerCrash,
   FileDown,
 } from "lucide-react";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils"; // Ensure these are implemented
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 import { Badge } from "@/components/ui/badge";
 import { InterviewExport } from "@/components/interview/interview-export";
 
