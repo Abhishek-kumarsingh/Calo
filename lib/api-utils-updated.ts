@@ -332,3 +332,45 @@ export async function fetchClaude(endpoint: string, options: RequestInit = {}) {
     },
   });
 }
+
+// Chat Session API functions
+export const chatSessionApi = {
+  getChatSessions: () => {
+    return fetchWithErrorHandling(`/api/chat-sessions`);
+  },
+
+  getChatSession: (id: string) => {
+    return fetchWithErrorHandling(`/api/chat-sessions/${id}`);
+  },
+
+  createChatSession: (data: Record<string, any>) => {
+    return fetchWithErrorHandling(`/api/chat-sessions`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateChatSession: (id: string, data: Record<string, any>) => {
+    return fetchWithErrorHandling(`/api/chat-sessions/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteChatSession: (id: string) => {
+    return fetchWithErrorHandling(`/api/chat-sessions/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  getMessages: (sessionId: string) => {
+    return fetchWithErrorHandling(`/api/chat-sessions/${sessionId}/messages`);
+  },
+
+  addMessage: (sessionId: string, content: string, role: string) => {
+    return fetchWithErrorHandling(`/api/chat-sessions/${sessionId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({ content, role }),
+    });
+  },
+};

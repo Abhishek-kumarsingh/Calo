@@ -428,7 +428,7 @@ export const EnhancedGeminiChat = React.forwardRef<
       if (currentSessionId) {
         try {
           // Add the message to the chat session
-          const response = await chatSessionApi.addMessage(currentSessionId, promptToSend);
+          const response = await chatSessionApi.addMessage(currentSessionId, promptToSend, 'user');
 
           // If we got a response with both user message and AI response, update our messages
           if (response && response.userMessage && response.aiResponse) {
