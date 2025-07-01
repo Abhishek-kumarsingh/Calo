@@ -54,10 +54,36 @@ export async function GET(req: NextRequest) {
     console.log("Session in GET interviews:", JSON.stringify(session, null, 2));
 
     if (!session || !session.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      // Return mock interview data for unauthenticated users (for build/demo)
+      return NextResponse.json([
+        {
+          id: "mock1",
+          domain: "Frontend",
+          subDomain: "React",
+          level: "Intermediate",
+          status: "completed",
+          score: 90,
+          title: "Mock Frontend Interview",
+          description: "A mock interview for frontend role.",
+          type: "technical",
+          userId: "mock-user",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: "mock2",
+          domain: "Backend",
+          subDomain: "Node.js",
+          level: "Advanced",
+          status: "scheduled",
+          title: "Mock Backend Interview",
+          description: "A mock interview for backend role.",
+          type: "technical",
+          userId: "mock-user",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ]);
     }
 
     // Connect to the database

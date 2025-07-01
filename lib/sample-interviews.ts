@@ -55,9 +55,6 @@ export async function ensureSampleInterview(id: string, userId: string = 'admin-
   
   const interview = await db.createInterview({
     id: id,
-    title: `${candidateRole} Interview`,
-    description: `Sample ${domain} developer interview`,
-    date: isThirdSample ? new Date(Date.now() - 432000000) : new Date(Date.now() + 86400000), // Past or future date
     duration: 60,
     status: status,
     type: "technical",
@@ -65,7 +62,7 @@ export async function ensureSampleInterview(id: string, userId: string = 'admin-
     subDomain: subDomain,
     difficulty: "intermediate",
     score: isThirdSample ? 85 : null,
-    feedback: isThirdSample ? 
+    overallFeedback: isThirdSample ? 
       `${candidateName} demonstrated strong knowledge of both frontend and backend technologies. Their ${subDomain} skills are excellent, and they have a good understanding of software architecture. They could improve on database optimization techniques and advanced state management patterns. Overall, a strong candidate who would be a valuable addition to the team.` : 
       null,
     userId: userId,
