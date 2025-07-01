@@ -35,18 +35,18 @@ interface ExtendedToken extends NextAuthJWT {
 // Demo users for development
 const DEMO_USERS = [
   {
-    id: "1",
+    id: "admin-1",
     name: "Admin User",
-    email: "admin@gmail.com",
-    password: "password123",
+    email: "admin@example.com",
+    password: "admin123",
     role: "admin",
     image: null
   },
   {
-    id: "2",
-    name: "Demo User",
-    email: "demo@example.com",
-    password: "demo123",
+    id: "user-1",
+    name: "Regular User",
+    email: "user@example.com",
+    password: "user123",
     role: "user",
     image: null
   }

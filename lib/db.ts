@@ -107,6 +107,15 @@ class MockDatabase {
       role: "admin",
       createdAt: new Date(),
       updatedAt: new Date()
+    },
+    {
+      id: "user-1",
+      name: "Regular User",
+      email: "user@example.com",
+      password: "user123",
+      role: "user",
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
   private candidates: Candidate[] = [];
