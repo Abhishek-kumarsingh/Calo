@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideCrop as LucideProps } from 'lucide-react';
+import { LucideProps } from 'lucide-react';
 
 // We're reusing Lucide icons here
 export {
