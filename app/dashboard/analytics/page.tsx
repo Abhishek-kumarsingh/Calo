@@ -43,7 +43,7 @@ import {
   AlertTriangle, // For errors
   RefreshCw, // For retry
 } from "lucide-react";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils"; // Your API utilities
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@radix-ui/react-label";
 // import { cn } from '@/lib/utils'; // Not explicitly used in this version's JSX

@@ -234,6 +234,26 @@ export const interviewApi = {
   getAllCandidates: () => {
     return fetchWithErrorHandling(`/api/candidates`);
   },
+
+  getAnalyticsOverview: (filters: any) => {
+    const params = new URLSearchParams(filters).toString();
+    return fetchWithErrorHandling(`/api/analytics/overview${params ? `?${params}` : ""}`);
+  },
+
+  getSkillsAnalysis: (filters: any) => {
+    const params = new URLSearchParams(filters).toString();
+    return fetchWithErrorHandling(`/api/analytics/skills${params ? `?${params}` : ""}`);
+  },
+
+  getDomainPerformance: (filters: any) => {
+    const params = new URLSearchParams(filters).toString();
+    return fetchWithErrorHandling(`/api/analytics/domains${params ? `?${params}` : ""}`);
+  },
+
+  getRecentCompletedInterviews: (filters: any) => {
+    const params = new URLSearchParams(filters).toString();
+    return fetchWithErrorHandling(`/api/interviews${params ? `?${params}` : ""}`);
+  },
 };
 
 export function handleApiError(

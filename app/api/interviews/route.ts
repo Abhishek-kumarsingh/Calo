@@ -18,7 +18,7 @@ async function handleUserInterviews(user: any) {
 
     // Transform the data to match the expected format
     const transformedInterviews = interviews.map(interview => ({
-      id: interview._id.toString(),
+      id: (interview._id as { toString(): string }).toString(),
       domain: interview.domain,
       subDomain: interview.subDomain,
       level: interview.level,
@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
 
     // Return the created interview
     return NextResponse.json({
-      id: interview._id.toString(),
+      id: (interview._id as { toString(): string }).toString(),
       domain: interview.domain,
       subDomain: interview.subDomain,
       level: interview.level,

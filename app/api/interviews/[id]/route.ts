@@ -115,12 +115,10 @@ export async function GET(
     console.log("Fetching interview with ID:", interviewId);
 
     // Special handling for sample interviews
-    if (interviewId.startsWith('sample-interview')) {
+    if (Object.prototype.hasOwnProperty.call(sampleInterviews, interviewId)) {
       console.log(`Handling sample interview: ${interviewId}`);
-      if (sampleInterviews[interviewId]) {
-        console.log("Found sample interview:", interviewId);
-        return NextResponse.json(sampleInterviews[interviewId]);
-      }
+      console.log("Found sample interview:", interviewId);
+      return NextResponse.json(sampleInterviews[interviewId as keyof typeof sampleInterviews]);
     }
 
     // Try to find the interview in the database

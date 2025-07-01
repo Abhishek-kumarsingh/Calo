@@ -27,7 +27,7 @@ export async function GET(
 
     // In a real application, you would fetch messages from your database
     // For this demo, we'll return mock data
-    const messages = [];
+    const messages: any[] = [];
 
     return NextResponse.json(messages);
   } catch (error) {
