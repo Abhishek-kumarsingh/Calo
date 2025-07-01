@@ -38,7 +38,7 @@ import {
   Download,
   ArrowLeft,
 } from "lucide-react";
-import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils";
+import { interviewApi, handleApiError, withRetry } from "@/lib/api-utils-updated";
 
 // Import recharts components
 import {
