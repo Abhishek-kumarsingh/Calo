@@ -51,7 +51,7 @@ export async function POST(
     console.log(`Question types:`, questionTypes);
     console.log(`Question type distribution:`, questionTypeDistribution);
 
-    let questionsData = [];
+    let questionsData: any[] = [];
     let useGeminiAPI = true;
 
     // Try to generate questions using Gemini API

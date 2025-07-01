@@ -113,7 +113,7 @@ export async function GET(
       yPosition += 10;
       
       // Prepare table data
-      const tableData = interview.questions.map((q, index) => {
+      const tableData = interview.questions.map((q: { question: string; answer: string; feedback: string; score?: number }, index: number) => {
         const row = [
           (index + 1).toString(),
           q.question

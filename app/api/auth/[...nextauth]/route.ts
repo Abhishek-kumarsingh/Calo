@@ -75,8 +75,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please enter both email and password.");
         }
 
+        // Extend credentials type to allow twoFactorToken
+        const typedCredentials = credentials as typeof credentials & { twoFactorToken?: string };
+
         // Check if this is a 2FA validation request
-        const twoFactorToken = credentials.twoFactorToken as string | undefined;
+        const twoFactorToken = typedCredentials.twoFactorToken as string | undefined;
 
         if (twoFactorToken) {
           try {
@@ -132,10 +135,7 @@ export const authOptions: NextAuthOptions = {
 
             // Log failed login attempt
             await logAuthEvent(
-              "login_failed",
-              `Failed login attempt for user: ${credentials.email}`,
-              undefined,
-              "failure"
+              { action: "login_failed", message: `Failed login attempt for user: ${credentials.email}`, severity: "failure" }
             );
 
             throw new Error("Invalid email or password.");
@@ -157,10 +157,8 @@ export const authOptions: NextAuthOptions = {
 
             // Log 2FA pending
             await logAuthEvent(
-              "2fa_required",
-              `2FA required for user: ${user.email}`,
-              user._id.toString(),
-              "info"
+              { action: "2fa_required", message: `2FA required for user: ${user.email}`, severity: "info" },
+              user._id.toString()
             );
 
             // Return a special response for 2FA
@@ -179,10 +177,8 @@ export const authOptions: NextAuthOptions = {
 
           // Log successful login
           await logAuthEvent(
-            "login_success",
-            `Successful login for user: ${user.email}`,
-            user._id.toString(),
-            "success"
+            { action: "login_success", message: `Successful login for user: ${user.email}`, severity: "success" },
+            user._id.toString()
           );
 
           return {

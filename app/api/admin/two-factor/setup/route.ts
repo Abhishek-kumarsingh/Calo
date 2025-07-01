@@ -79,13 +79,11 @@ export async function POST(req: NextRequest) {
 
     // Log this admin action
     await logAdminEvent(
-      "2fa_setup_initiated",
-      `Admin initiated 2FA setup`,
-      user._id.toString(),
-      user._id.toString(),
-      "User",
-      "info",
-      req
+      {
+        action: "2fa_setup_initiated",
+        message: "Admin initiated 2FA setup"
+      },
+      user._id.toString()
     );
 
     return NextResponse.json(setupData);

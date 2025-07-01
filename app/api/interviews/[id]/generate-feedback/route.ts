@@ -29,8 +29,10 @@ export async function POST(
     }
 
     // Fetch candidate data
+    if (!interview.candidateId) {
+      return NextResponse.json({ error: "Candidate ID not found in interview" }, { status: 404 });
+    }
     const candidate = await db.findCandidateById(interview.candidateId);
-
     if (!candidate) {
       return NextResponse.json({ error: "Candidate not found" }, { status: 404 });
     }

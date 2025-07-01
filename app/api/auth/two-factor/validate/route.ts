@@ -90,11 +90,8 @@ export async function POST(req: NextRequest) {
     if (!isValid) {
       // Log failed attempt
       await logAuthEvent(
-        "2fa_validation_failed",
-        `Failed 2FA validation attempt for user: ${email}`,
-        user._id.toString(),
-        "failure",
-        req
+        { action: "2fa_validation_failed", message: `Failed 2FA validation attempt for user: ${email}`, severity: "failure" },
+        user._id.toString()
       );
 
       return NextResponse.json(
@@ -109,11 +106,8 @@ export async function POST(req: NextRequest) {
 
     // Log successful validation
     await logAuthEvent(
-      "2fa_validation_success",
-      `Successful 2FA validation for user: ${email}`,
-      user._id.toString(),
-      "success",
-      req
+      { action: "2fa_validation_success", message: `Successful 2FA validation for user: ${email}`, severity: "success" },
+      user._id.toString()
     );
 
     // Create a new token that indicates 2FA is complete

@@ -26,8 +26,36 @@ export interface Interview {
     question: string;
     answer: string;
     feedback: string;
+    score?: number;
   }>;
   createdAt: string;
+  duration?: number;
+  type?: string;
+  candidateId?: string;
+  difficulty?: string;
+  questionQuantity?: number;
+  questionTypes?: {
+    text: boolean;
+    multipleChoice: boolean;
+    coding: boolean;
+    codeCorrection: boolean;
+  };
+  questionTypeDistribution?: {
+    text: number;
+    multipleChoice: number;
+    coding: number;
+    codeCorrection: number;
+  };
+  candidate?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  messages?: Array<{ role: string; content: string }>;
 }
 
 export interface Candidate {
@@ -96,34 +124,39 @@ class MockDatabase {
       subDomain: "React",
       level: "intermediate",
       status: "in_progress",
-      score: null,
+      score: undefined,
       overallFeedback: null,
       userId: "admin-1",
       questions: [
         {
           question: "Explain the concept of virtual DOM in React and how it improves performance.",
           answer: "",
-          feedback: ""
+          feedback: "",
+          score: undefined
         },
         {
           question: "What are React hooks? Explain useState and useEffect with examples.",
           answer: "",
-          feedback: ""
+          feedback: "",
+          score: undefined
         },
         {
           question: "Describe the component lifecycle in React and how it differs between class and functional components.",
           answer: "",
-          feedback: ""
+          feedback: "",
+          score: undefined
         },
         {
           question: "What is the purpose of React Context API? When would you use it instead of prop drilling?",
           answer: "",
-          feedback: ""
+          feedback: "",
+          score: undefined
         },
         {
           question: "Explain how you would optimize a React application for better performance.",
           answer: "",
-          feedback: ""
+          feedback: "",
+          score: undefined
         }
       ],
       createdAt: new Date().toISOString()
@@ -144,27 +177,32 @@ class MockDatabase {
         {
           question: "Explain the event loop in Node.js and how it enables non-blocking I/O operations.",
           answer: "The event loop is a core concept in Node.js that allows it to perform non-blocking I/O operations despite JavaScript being single-threaded. It works by offloading operations to the system kernel whenever possible and using a callback mechanism to handle the results when they're ready.\n\nWhen Node.js starts, it initializes the event loop, processes the provided input script, and then begins processing the event loop. The event loop has multiple phases, including timers, pending callbacks, idle/prepare, poll, check, and close callbacks. Each phase has a FIFO queue of callbacks to execute.\n\nFor example, when making a database query, Node.js doesn't wait for the response. It registers a callback and continues executing other code. When the database response is ready, the callback is added to the event loop queue and executed when the loop reaches it. This allows Node.js to handle thousands of concurrent connections without creating a new thread for each one, making it memory-efficient and scalable.",
-          feedback: "Excellent explanation! You've demonstrated a deep understanding of the event loop in Node.js. Your explanation covers the key concepts of non-blocking I/O, the callback mechanism, and the phases of the event loop. The example of a database query effectively illustrates how asynchronous operations work in practice. You've also highlighted the performance benefits of this architecture, which is a crucial advantage of Node.js."
+          feedback: "Excellent explanation! You've demonstrated a deep understanding of the event loop in Node.js. Your explanation covers the key concepts of non-blocking I/O, the callback mechanism, and the phases of the event loop. The example of a database query effectively illustrates how asynchronous operations work in practice. You've also highlighted the performance benefits of this architecture, which is a crucial advantage of Node.js.",
+          score: undefined
         },
         {
           question: "Describe the differences between REST and GraphQL APIs. When would you choose one over the other?",
           answer: "REST and GraphQL are two different approaches to building APIs:\n\nREST (Representational State Transfer):\n- Uses standard HTTP methods (GET, POST, PUT, DELETE)\n- Multiple endpoints for different resources\n- Fixed data structure returned from each endpoint\n- Over-fetching or under-fetching of data is common\n- Easier caching due to HTTP standards\n- Widely adopted with good tooling\n\nGraphQL:\n- Single endpoint for all operations\n- Client specifies exactly what data it needs\n- Eliminates over-fetching and under-fetching\n- Strongly typed schema that serves as documentation\n- More complex to set up initially\n- Requires more client-side processing\n\nI would choose REST when:\n- The API has simple, well-defined resource types\n- Caching is important for performance\n- The client needs are predictable and stable\n- Working with simple CRUD operations\n\nI would choose GraphQL when:\n- The client needs vary widely or change frequently\n- The data is highly relational\n- Network performance is critical (mobile apps)\n- The API serves multiple client platforms with different data needs\n- Rapid development and iteration is important",
-          feedback: "Very comprehensive comparison! You've clearly outlined the key differences between REST and GraphQL APIs and provided thoughtful criteria for choosing between them. Your explanation shows a nuanced understanding of the trade-offs involved. The structured format makes your answer easy to follow. You've demonstrated excellent knowledge of modern API design principles."
+          feedback: "Very comprehensive comparison! You've clearly outlined the key differences between REST and GraphQL APIs and provided thoughtful criteria for choosing between them. Your explanation shows a nuanced understanding of the trade-offs involved. The structured format makes your answer easy to follow. You've demonstrated excellent knowledge of modern API design principles.",
+          score: undefined
         },
         {
           question: "How would you handle authentication and authorization in a Node.js application? Discuss security best practices.",
           answer: "For a Node.js application, I would implement authentication and authorization as follows:\n\nAuthentication (verifying identity):\n- Use JWT (JSON Web Tokens) for stateless authentication\n- Implement OAuth2 for third-party authentication when needed\n- Store passwords using bcrypt with appropriate salt rounds\n- Use HTTPS for all communications\n- Implement rate limiting to prevent brute force attacks\n\nAuthorization (controlling access):\n- Role-based access control (RBAC) for different permission levels\n- Middleware to check permissions before handling requests\n- Principle of least privilege - grant only necessary permissions\n\nSecurity best practices:\n- Input validation using libraries like Joi or express-validator\n- Parameterized queries to prevent SQL injection\n- Set proper HTTP headers (Content-Security-Policy, X-XSS-Protection)\n- Use helmet.js to set security-related headers automatically\n- Implement CORS properly to restrict access from unauthorized domains\n- Regular dependency updates to patch vulnerabilities (npm audit)\n- Error handling that doesn't expose sensitive information\n- Use environment variables for sensitive configuration\n- Implement proper logging for security events\n- Regular security audits and penetration testing",
-          feedback: "Your answer demonstrates strong knowledge of security practices in Node.js applications. You've covered the essential aspects of both authentication and authorization with specific technologies and approaches. I particularly appreciate your mention of bcrypt for password hashing, JWT for authentication, and the principle of least privilege for authorization. Your security best practices section is comprehensive and shows awareness of common vulnerabilities and their mitigations. One area you might consider adding is session management strategies and CSRF protection, but overall this is an excellent response."
+          feedback: "Your answer demonstrates strong knowledge of security practices in Node.js applications. You've covered the essential aspects of both authentication and authorization with specific technologies and approaches. I particularly appreciate your mention of bcrypt for password hashing, JWT for authentication, and the principle of least privilege for authorization. Your security best practices section is comprehensive and shows awareness of common vulnerabilities and their mitigations. One area you might consider adding is session management strategies and CSRF protection, but overall this is an excellent response.",
+          score: undefined
         },
         {
           question: "Explain database indexing and how it affects query performance. Give examples of when you would and wouldn't create an index.",
           answer: "Database indexing is a data structure technique that improves the speed of data retrieval operations by creating pointers to data locations, similar to how a book index helps you find information quickly.\n\nHow indexing works:\n- Creates a separate data structure (typically B-tree or hash) that points to records\n- Allows the database to find data without scanning the entire table\n- Takes additional storage space and adds overhead to write operations\n\nHow it affects performance:\n- Dramatically speeds up SELECT queries with WHERE, JOIN, and ORDER BY clauses\n- Slows down INSERT, UPDATE, and DELETE operations as indexes need updating\n- Consumes additional disk space and memory\n\nWhen to create indexes:\n- On columns frequently used in WHERE clauses\n- On columns used in JOIN operations (foreign keys)\n- On columns used in ORDER BY or GROUP BY\n- On large tables where query performance is critical\n- On columns with high cardinality (many unique values)\n\nWhen not to create indexes:\n- On small tables where full table scans are already fast\n- On columns rarely used in queries\n- On columns with low cardinality (few unique values)\n- On columns that are frequently updated\n- When write performance is more critical than read performance\n- When disk space is a significant constraint",
-          feedback: "Your explanation of database indexing is thorough and well-structured. You've clearly explained the concept, how it works, and its impact on performance. Your lists of when to create and when not to create indexes show a practical understanding of the trade-offs involved. The mention of cardinality as a factor in indexing decisions demonstrates advanced knowledge. This is a strong answer that shows both theoretical understanding and practical experience with database optimization."
+          feedback: "Your explanation of database indexing is thorough and well-structured. You've clearly explained the concept, how it works, and its impact on performance. Your lists of when to create and when not to create indexes show a practical understanding of the trade-offs involved. The mention of cardinality as a factor in indexing decisions demonstrates advanced knowledge. This is a strong answer that shows both theoretical understanding and practical experience with database optimization.",
+          score: undefined
         },
         {
           question: "Describe how you would design a scalable microservices architecture using Node.js. Include considerations for service discovery, communication, and deployment.",
           answer: "When designing a scalable microservices architecture with Node.js, I would consider the following aspects:\n\nService Design:\n- Single responsibility principle - each service handles one business capability\n- Domain-driven design to define service boundaries\n- Stateless services where possible to facilitate scaling\n- Asynchronous processing using event queues for long-running tasks\n- Circuit breakers to handle service failures gracefully\n\nService Discovery:\n- Use a service registry like Consul or etcd\n- Implement health checks for each service\n- Consider client-side discovery or server-side discovery patterns\n- Use DNS-based discovery for simpler setups\n\nCommunication:\n- REST APIs for synchronous request/response patterns\n- gRPC for efficient internal service communication\n- Message queues (RabbitMQ, Kafka) for asynchronous communication\n- Event-driven architecture for decoupling services\n- API Gateway for external clients (using Express or Fastify)\n\nData Management:\n- Database per service when possible\n- Consider eventual consistency for distributed data\n- Implement the CQRS pattern for complex domains\n- Use saga pattern for distributed transactions\n\nDeployment and Scaling:\n- Containerization with Docker\n- Orchestration with Kubernetes\n- CI/CD pipelines for automated testing and deployment\n- Blue-green or canary deployment strategies\n- Horizontal scaling based on load metrics\n\nMonitoring and Observability:\n- Distributed tracing with Jaeger or Zipkin\n- Centralized logging with ELK stack\n- Metrics collection with Prometheus\n- Alerting system for critical issues\n\nSecurity:\n- API authentication with JWT or OAuth2\n- Service-to-service authentication\n- Rate limiting and throttling\n- Network security policies\n\nNode.js Specific Considerations:\n- Use clustering to take advantage of multiple CPU cores\n- Implement proper error handling and process management\n- Consider TypeScript for type safety in large codebases\n- Use PM2 or similar for process management in production",
-          feedback: "This is an outstanding answer that demonstrates expert-level knowledge of microservices architecture. You've covered all the critical aspects of designing a scalable system, from service design principles to deployment strategies. Your answer shows a deep understanding of both theoretical concepts and practical implementation details. The Node.js-specific considerations show your expertise with the platform. Your mention of advanced patterns like CQRS, saga, and circuit breakers indicates experience with complex distributed systems. This comprehensive response would satisfy even the most demanding technical interview."
+          feedback: "This is an outstanding answer that demonstrates expert-level knowledge of microservices architecture. You've covered all the critical aspects of designing a scalable system, from service design principles to deployment strategies. Your answer shows a deep understanding of both theoretical concepts and practical implementation details. The Node.js-specific considerations show your expertise with the platform. Your mention of advanced patterns like CQRS, saga, and circuit breakers indicates experience with complex distributed systems. This comprehensive response would satisfy even the most demanding technical interview.",
+          score: undefined
         }
       ],
       createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
@@ -188,21 +226,15 @@ class MockDatabase {
     // Add a sample interview
     const sampleInterview: Interview = {
       id: "sample-interview-1",
-      title: "Frontend Developer Interview",
-      description: "Technical interview for frontend position",
-      date: new Date(Date.now() + 86400000), // Tomorrow
       duration: 60,
       status: "scheduled",
-      type: "technical",
       domain: "frontend",
       subDomain: "react",
-      difficulty: "intermediate",
-      score: null,
-      feedback: null,
+      score: undefined,
       userId: "admin-1",
-      candidateId: sampleCandidate.id,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date().toISOString(),
+      level: "intermediate",
+      questions: []
     };
     this.interviews.push(sampleInterview);
 
@@ -279,21 +311,15 @@ class MockDatabase {
     // Add a second sample interview
     const backendInterview: Interview = {
       id: "sample-interview-2",
-      title: "Backend Developer Interview",
-      description: "Technical interview for backend position",
-      date: new Date(Date.now() + 172800000), // Day after tomorrow
       duration: 45,
       status: "scheduled",
-      type: "technical",
       domain: "backend",
       subDomain: "nodejs",
-      difficulty: "advanced",
-      score: null,
-      feedback: null,
+      score: undefined,
       userId: "admin-1",
-      candidateId: backendCandidate.id,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date().toISOString(),
+      level: "advanced",
+      questions: []
     };
     this.interviews.push(backendInterview);
 
@@ -355,21 +381,15 @@ class MockDatabase {
 
     const completedInterview: Interview = {
       id: "sample-interview-3",
-      title: "Full Stack Developer Interview",
-      description: "Technical interview for full stack position",
-      date: new Date(Date.now() - 432000000), // 5 days ago
       duration: 60,
       status: "completed",
-      type: "technical",
       domain: "fullstack",
       subDomain: "javascript",
-      difficulty: "intermediate",
       score: 85,
-      feedback: "Alex demonstrated strong knowledge of both frontend and backend technologies. Their React skills are excellent, and they have a good understanding of Node.js and Express. They could improve on database optimization techniques and advanced state management patterns. Overall, a strong candidate who would be a valuable addition to the team.",
       userId: "admin-1",
-      candidateId: completedCandidate.id,
-      createdAt: new Date(Date.now() - 604800000),
-      updatedAt: new Date(Date.now() - 432000000)
+      createdAt: new Date(Date.now() - 604800000).toISOString(),
+      level: "intermediate",
+      questions: []
     };
     this.interviews.push(completedInterview);
 
@@ -502,7 +522,7 @@ class MockDatabase {
       subDomain: data.subDomain || 'react',
       level: data.level || 'intermediate',
       status: data.status || 'in_progress',
-      score: data.score || null,
+      score: data.score || undefined,
       overallFeedback: data.overallFeedback || null,
       userId: data.userId || 'admin-1',
       questions: data.questions || [],
@@ -530,8 +550,7 @@ class MockDatabase {
     // Update the interview with the new data
     this.interviews[index] = {
       ...this.interviews[index],
-      ...data,
-      updatedAt: new Date()
+      ...data
     };
 
     console.log(`Updated interview ${id} with data:`, data);

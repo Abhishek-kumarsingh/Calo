@@ -149,7 +149,7 @@ export async function GET(req: NextRequest) {
 
     // Transform the data to match the expected format
     const transformedCandidates = candidates.map(candidate => ({
-      id: candidate._id.toString(),
+      id: (candidate._id as { toString(): string }).toString(),
       name: candidate.name,
       email: candidate.email,
       phone: candidate.phone,

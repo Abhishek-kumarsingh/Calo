@@ -66,7 +66,7 @@ Questions and Answers:
     if (interview.questions && interview.questions.length > 0) {
       // Count how many questions have answers
       const answeredQuestions = interview.questions.filter(
-        q => q.answer && q.answer.trim() !== ""
+        (q: { answer?: string }) => q.answer && q.answer.trim() !== ""
       );
 
       if (answeredQuestions.length === 0) {
@@ -77,7 +77,7 @@ Questions and Answers:
       }
 
       // Add all questions to the prompt, even unanswered ones
-      interview.questions.forEach((qa, index) => {
+      interview.questions.forEach((qa: { question: string; answer?: string }, index: number) => {
         promptText += `\nQuestion ${index + 1}: ${qa.question}\n`;
         // For unanswered questions, indicate that the candidate didn't know the answer
         const answer = qa.answer?.trim()

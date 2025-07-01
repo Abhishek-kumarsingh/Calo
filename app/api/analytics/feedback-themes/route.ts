@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
         Object.entries(FEEDBACK_THEMES).forEach(([theme, keywords]) => {
           keywords.forEach(({ keyword, sentiment }) => {
             if (lowerSentence.includes(keyword.toLowerCase())) {
-              themeCounters[theme][sentiment]++;
+              themeCounters[theme][sentiment as 'positive' | 'negative' | 'neutral']++;
               themeCounters[theme].total++;
 
               // Store example if we don't have too many already

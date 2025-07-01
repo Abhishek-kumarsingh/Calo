@@ -90,13 +90,11 @@ export async function POST(req: NextRequest) {
 
     // Log this admin action
     await logAdminEvent(
-      "2fa_enabled",
-      `Admin enabled 2FA for their account`,
-      user._id.toString(),
-      user._id.toString(),
-      "User",
-      "success",
-      req
+      {
+        action: "2fa_enabled",
+        message: "Admin enabled 2FA for their account"
+      },
+      user._id.toString()
     );
 
     return NextResponse.json({
@@ -136,13 +134,11 @@ export async function DELETE(req: NextRequest) {
 
     // Log this admin action
     await logAdminEvent(
-      "2fa_disabled",
-      `Admin disabled 2FA for their account`,
-      user._id.toString(),
-      user._id.toString(),
-      "User",
-      "warning",
-      req
+      {
+        action: "2fa_disabled",
+        message: "Admin disabled 2FA for their account"
+      },
+      user._id.toString()
     );
 
     return NextResponse.json({

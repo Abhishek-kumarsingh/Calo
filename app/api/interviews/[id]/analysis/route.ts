@@ -165,7 +165,7 @@ function analyzeFeedbackThemes(feedback: string) {
     let positiveCount = 0;
     let negativeCount = 0;
     let neutralCount = 0;
-    const examples = [];
+    const examples: string[] = [];
 
     keywords.forEach(({ keyword, sentiment }) => {
       const regex = new RegExp(keyword, "gi");
@@ -201,7 +201,7 @@ function analyzeFeedbackThemes(feedback: string) {
           negative: negativeCount > 0 ? Math.round((negativeCount / occurrences) * 100) : 0,
           neutral: neutralCount > 0 ? Math.round((neutralCount / occurrences) * 100) : 0
         },
-        examples: [...new Set(examples)].slice(0, 3) // Remove duplicates and limit to 3
+        examples: Array.from(new Set(examples)).slice(0, 3) // Remove duplicates and limit to 3
       });
     }
   }
