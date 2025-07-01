@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { interviewApi, handleApiError } from "@/lib/api-utils";
+import { interviewApi, handleApiError } from "@/lib/api-utils-updated";
 import { useToast } from "@/components/ui/use-toast";
 
 interface Interview {
@@ -527,8 +527,8 @@ export default function InterviewAnalysisPage() {
 // Helper functions
 function getScoreBadgeVariant(score: number | null | undefined) {
   if (!score) return "outline";
-  if (score >= 80) return "success";
-  if (score >= 60) return "warning";
+  if (score >= 80) return "default";
+  if (score >= 60) return "secondary";
   return "destructive";
 }
 

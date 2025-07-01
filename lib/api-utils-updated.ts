@@ -113,6 +113,10 @@ export const interviewApi = {
     return fetchWithErrorHandling(`/api/interviews/${id}`);
   },
 
+  getInterviewById: (id: string) => {
+    return interviewApi.getInterview(id);
+  },
+
   getSampleInterview: (id: string) => {
     return fetchWithErrorHandling(`/api/interviews/${id}?sample=true`);
   },

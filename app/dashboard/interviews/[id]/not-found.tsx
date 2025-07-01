@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { interviewApi } from '@/lib/api-utils';
+import { interviewApi } from '@/lib/api-utils-updated';
 
 export default function InterviewNotFound({ params }: { params: { id: string } }) {
   const router = useRouter();
