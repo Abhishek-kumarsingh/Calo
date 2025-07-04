@@ -29,6 +29,29 @@ const SKILL_CATEGORIES = {
   ]
 };
 
+// More nuanced sentiment analysis keywords and their weights
+const SENTIMENT_WORDS = {
+  // Positive words
+  "excellent": 25,
+  "strong": 20,
+  "impressive": 20,
+  "great": 15,
+  "good": 10,
+  "solid": 10,
+  "proficient": 10,
+  "clear": 5,
+  "well": 5,
+  // Negative words
+  "improve": -15,
+  "lacking": -20,
+  "weak": -20,
+  "needs work": -15,
+  "struggled": -15,
+  "poor": -25,
+  "unclear": -10,
+  "confusing": -10,
+};
+
 // Define feedback themes to look for
 const FEEDBACK_THEMES = {
   "Strengths": [
@@ -121,37 +144,55 @@ export async function GET(
 }
 
 // Helper function to analyze skills from feedback
-function analyzeSkills(feedback: string) {
-  const skills = [];
-  const lowerFeedback = feedback.toLowerCase();
+function analyzeSkills(feedback: string): { name: string; score: number }[] {
+  const skillScores: Record<string, number[]> = {};
+  // Split feedback into sentences for contextual analysis
+  const sentences = feedback.split(/[.!?]+/).filter(s => s.trim().length > 0);
 
-  for (const [name, keywords] of Object.entries(SKILL_CATEGORIES)) {
-    const mentioned = keywords.some(keyword => lowerFeedback.includes(keyword.toLowerCase()));
-
-    if (mentioned) {
-      // Generate a score based on sentiment analysis (simplified)
-      const positiveWords = ["excellent", "good", "great", "strong", "impressive"];
-      const negativeWords = ["improve", "weak", "lacking", "needs work", "poor"];
-
-      let score = 70; // Default score
-
-      // Adjust score based on positive/negative words near the skill keywords
-      positiveWords.forEach(word => {
-        if (lowerFeedback.includes(word)) score += 5;
-      });
-
-      negativeWords.forEach(word => {
-        if (lowerFeedback.includes(word)) score -= 5;
-      });
-
-      // Ensure score is within 0-100 range
-      score = Math.max(0, Math.min(100, score));
-
-      skills.push({ name, score });
-    }
+  // Initialize the skillScores object to hold scores for each mention
+  for (const skillName of Object.keys(SKILL_CATEGORIES)) {
+    skillScores[skillName] = [];
   }
 
-  return skills.sort((a, b) => b.score - a.score);
+  // Analyze each sentence for skill keywords and sentiment
+  sentences.forEach(sentence => {
+    const lowerSentence = sentence.toLowerCase();
+    let sentenceSentiment = 0;
+
+    // Calculate the sentiment score for the current sentence using weighted words
+    for (const [word, score] of Object.entries(SENTIMENT_WORDS)) {
+      if (lowerSentence.includes(word)) {
+        sentenceSentiment += score;
+      }
+    }
+
+    // Check which skills are mentioned in this sentence and apply the sentiment
+    for (const [skillName, keywords] of Object.entries(SKILL_CATEGORIES)) {
+      const isMentioned = keywords.some(keyword => lowerSentence.includes(keyword.toLowerCase()));
+      
+      if (isMentioned) {
+        // Start with a neutral base score and adjust with sentence sentiment
+        const baseScore = 70;
+        let score = baseScore + sentenceSentiment;
+
+        // Clamp the score to be within the 0-100 range
+        score = Math.max(0, Math.min(100, score));
+        
+        skillScores[skillName].push(score);
+      }
+    }
+  });
+
+  // Calculate the final average score for each mentioned skill
+  const finalSkills = Object.entries(skillScores)
+    .map(([name, scores]) => {
+      if (scores.length === 0) return null; // Skill not mentioned
+      const averageScore = scores.reduce((sum, current) => sum + current, 0) / scores.length;
+      return { name, score: Math.round(averageScore) };
+    })
+    .filter((skill): skill is { name: string; score: number } => skill !== null);
+
+  return finalSkills.sort((a, b) => b.score - a.score);
 }
 
 // Helper function to analyze feedback themes

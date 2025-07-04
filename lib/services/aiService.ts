@@ -122,7 +122,18 @@ async function generateWithClaude(
         messages: [{ role: "user", content: prompt }]
       });
       console.log(`Successfully generated content with Claude on attempt ${attempt}`);
-      return response.content[0].text;
+      
+      // Check the content type and extract text properly
+      const contentBlock = response.content[0];
+      if (contentBlock.type === 'text') {
+        return contentBlock.text;
+      } else if (typeof contentBlock === 'object' && 'text' in contentBlock) {
+        // Fallback if the type property is missing but text exists
+        return (contentBlock as any).text;
+      } else {
+        // If no text property is found, convert the entire content to string
+        return JSON.stringify(response.content);
+      }
     } catch (error: any) {
       console.error(`Error on Claude attempt ${attempt}:`, error.message);
       

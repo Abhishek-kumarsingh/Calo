@@ -25,6 +25,15 @@ interface QuestionTypeDistribution {
   [key: string]: number; // Index signature to allow string indexing
 }
 
+// Define interface for question objects
+interface Question {
+  question: string;
+  type: string;
+  options?: string[];
+  codeSnippet?: string;
+  [key: string]: any; // Allow for additional properties
+}
+
 // Function to generate AI questions
 async function generateQuestionsWithAI(
   domain: string,
@@ -214,7 +223,7 @@ async function generateQuestionsWithAI(
 
     // Parse the JSON response using our utility function
     try {
-      const questions = parseJsonFromAIResponse(text);
+      let questions: Question[] = parseJsonFromAIResponse(text);
 
       // Validate the structure
       if (!Array.isArray(questions)) {
@@ -239,7 +248,7 @@ async function generateQuestionsWithAI(
             questions.push({
               question: `Additional question ${i+1} for ${subDomain} (${level} level): Explain a key concept in ${subDomain} that's important for ${level} developers.`,
               type: "text"
-            });
+            } as Question);
           }
         }
       }
@@ -254,8 +263,8 @@ async function generateQuestionsWithAI(
         };
 
         // Count current distribution
-        questions.forEach(q => {
-          const qType = q.type as string;
+        questions.forEach((q: Question) => {
+          const qType = q.type;
           if (typeCounts[qType] !== undefined) {
             typeCounts[qType]++;
           } else {
@@ -335,7 +344,7 @@ async function generateQuestionsWithAI(
               // If we couldn't find a question to adjust, create a new one
               if (!adjusted) {
                 // Create a new question of the required type
-                let newQuestion;
+                let newQuestion: Question;
                 if (type === 'text') {
                   newQuestion = {
                     question: `Additional ${type} question for ${subDomain}: Explain a key concept in ${subDomain} that's important for ${level} developers.`,
@@ -385,7 +394,7 @@ async function generateQuestionsWithAI(
       }
 
       // Ensure each question has the required fields
-      return questions.map(q => {
+      return questions.map((q: Question) => {
         // Basic validation
         if (!q.question) {
           console.warn("Question missing 'question' field:", q);
@@ -414,7 +423,7 @@ async function generateQuestionsWithAI(
 
         // Split the text by newlines and look for numbered questions
         const lines = text.split('\n');
-        const questions = [];
+        const questions: Question[] = [];
 
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
@@ -542,8 +551,8 @@ export async function POST(
     // Retry parameters
     const maxRetries = 3;
     const initialDelay = 3000; // 3 seconds
-    let questions;
-    let lastError;
+    let questions: Question[];
+    let lastError: Error;
 
     // Try to generate questions with retries
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
