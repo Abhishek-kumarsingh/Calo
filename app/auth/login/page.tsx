@@ -42,15 +42,12 @@ export default function LoginPage() {
 
   // Check if user is already logged in and redirect to dashboard
   useEffect(() => {
-    if (status === "loading") return; // Don't redirect while loading
-    if (status === "authenticated" && session) {
-      if (session.user?.role === "admin" && window.location.pathname !== "/admin") {
-        window.location.href = "/admin";
-      } else if (session.user?.role === "user" && window.location.pathname !== "/dashboard") {
-        window.location.href = "/dashboard";
-      }
+    if (status === "authenticated") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const callbackUrl = urlParams.get('callbackUrl') || '/dashboard';
+      router.push(callbackUrl);
     }
-  }, [status, session, router]);
+  }, [status, router]);
 
   // Show admin warning when admin account type is selected
   useEffect(() => {
@@ -119,6 +116,10 @@ export default function LoginPage() {
           email,
           password,
         });
+        
+        // Double check that token is properly stored
+        const storedToken = localStorage.getItem('token');
+        console.log('Token verification after login:', storedToken ? 'token exists' : 'token missing');
       }
 
       if (result?.error) {
@@ -153,7 +154,10 @@ export default function LoginPage() {
           description: "Redirecting to your dashboard...",
           className: "bg-green-500 text-white",
         });
-        window.location.href = "/dashboard"; // Force full reload for regular user
+        // Get the callback URL from the query parameters or default to dashboard
+        const urlParams = new URLSearchParams(window.location.search);
+        const callbackUrl = urlParams.get('callbackUrl') || '/dashboard';
+        window.location.href = callbackUrl; // Force full reload for regular user
       }
 
     } catch (error: any) {

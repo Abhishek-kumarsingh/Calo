@@ -289,15 +289,22 @@ export default function DashboardPage() {
       // Debug: Check if token exists in localStorage
       const token = localStorage.getItem('token');
       console.log('Token in localStorage:', token ? 'exists' : 'not found');
+      
+      // If token doesn't exist, try to get it from the session
+      if (!token && session?.user) {
+        // Redirect to login to get a proper token
+        router.push("/auth/login?callbackUrl=/dashboard");
+        return;
+      }
 
       fetchDashboardData();
     } else if (
       sessionStatus === "unauthenticated"
     ) {
       // check loading to prevent premature redirect
-      router.push("/auth/login");
+      router.push("/auth/login?callbackUrl=/dashboard");
     }
-  }, [sessionStatus, fetchDashboardData, router]);
+  }, [sessionStatus, fetchDashboardData, router, session]);
 
   const handleStartInterview = async () => {
     // Renamed for clarity

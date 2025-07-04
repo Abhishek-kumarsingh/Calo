@@ -3,7 +3,7 @@
  */
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"; // Base URL of your backend
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"; // Base URL of your backend
 
 // Unified Gemini/Claude API key support
 const GEMINI_CLAUDE_API_KEY = process.env.NEXT_PUBLIC_GEMINI_CLAUDE_API_KEY;
@@ -33,13 +33,15 @@ async function fetchWithErrorHandling(
   }
 
   try {
+    // Get the token from localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    
     const response = await fetch(url, {
       ...options,
       headers: {
         "Content-Type": "application/json",
-        // Example for adding an auth token if you have one:
-        // const token = getAuthToken(); // Implement this function
-        // ...(token && { 'Authorization': `Bearer ${token}` }),
+        // Add the token to the Authorization header if it exists
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
     });

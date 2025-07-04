@@ -19,7 +19,7 @@ graph TD
   E["Models (lib/models)"]
   F["Components (UI, Admin, Interview, etc.)"]
   G["Hooks & Contexts"]
-  H["Third-party Services (Gemini, Claude, Auth)"]
+  H["Third-party Services (Gemini, Auth)"]
 
   A --> F
   A --> G
@@ -71,7 +71,7 @@ graph TD
 
 - 🧑‍💼 Admin dashboard for interview management
 - 📊 Real-time analytics and reporting
-- 🤖 AI-powered question generation (Gemini, Claude)
+- 🤖 AI-powered question generation (Gemini)
 - 🔒 Secure authentication (NextAuth, 2FA)
 - 🗂️ Question banks and export/import
 - 📝 Candidate management
@@ -107,7 +107,7 @@ graph TD
 
 ## 🔗 Third-party Integrations
 
-- Gemini & Claude AI APIs (unified key support)
+- Gemini AI API integration
 - NextAuth for authentication
 - AOS for animations
 - Recharts for data visualization
@@ -160,7 +160,7 @@ graph TD
 ## ❓ FAQ
 
 **Q: Can I use this with my own AI API keys?**
-A: Yes! Set your Gemini/Claude API key in `.env.local`.
+A: Yes! Set your Gemini API key in `.env.local`.
 
 **Q: Is there a demo mode?**
 A: Yes, mock data is used when not authenticated.
