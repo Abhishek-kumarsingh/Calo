@@ -5,14 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -49,15 +42,12 @@ export default function LoginPage() {
 
   // Check if user is already logged in and redirect to dashboard
   useEffect(() => {
+    if (status === "loading") return; // Don't redirect while loading
     if (status === "authenticated" && session) {
-      console.log("User is already authenticated, redirecting to appropriate dashboard");
-      console.log("Session user role:", session?.user?.role);
-
-      // Instead of forcing logout, redirect to the appropriate dashboard
-      if (session?.user?.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
+      if (session.user?.role === "admin" && window.location.pathname !== "/admin") {
+        window.location.href = "/admin";
+      } else if (session.user?.role === "user" && window.location.pathname !== "/dashboard") {
+        window.location.href = "/dashboard";
       }
     }
   }, [status, session, router]);
@@ -88,27 +78,21 @@ export default function LoginPage() {
       console.log("Attempting login with:", {
         email,
         password: "***",
+        accountType,
       });
 
       let result;
-
-      // Handle different login flows based on account type
       if (accountType === "admin") {
-        // For admin login, use NextAuth directly
+        // Admin login flow
         console.log("Using NextAuth for admin login");
         result = await signIn("credentials", {
+          redirect: false,
           email,
           password,
-          redirect: false,
         });
-
         console.log("Admin login result:", result);
-
-        if (result?.error) {
-          throw new Error(result.error);
-        }
       } else {
-        // Regular users use our custom API first
+        // Regular user login flow
         console.log("Using custom API for regular user login");
         const response = await fetch('/api/auth/login', {
           method: 'POST',
@@ -123,18 +107,13 @@ export default function LoginPage() {
           throw new Error(errorData.message || 'Login failed');
         }
 
-        // Process response for regular users
         const data = await response.json();
-
-        // Store the JWT token in localStorage
+        
+        // Store the JWT token
         localStorage.setItem('token', data.token);
-        console.log('Token saved to localStorage:', data.token);
+        console.log('Token saved to localStorage');
 
-        // Verify token was saved
-        const savedToken = localStorage.getItem('token');
-        console.log('Verified token in localStorage:', savedToken);
-
-        // Then sign in with NextAuth for session management
+        // Now sign in with NextAuth
         result = await signIn("credentials", {
           redirect: false,
           email,
@@ -147,37 +126,36 @@ export default function LoginPage() {
         try {
           const errorData = JSON.parse(result.error);
           if (errorData.error === "2FA_REQUIRED") {
-            // Set 2FA required state
             setTwoFactorRequired(true);
             setTwoFactorEmail(email);
             setTwoFactorToken(errorData.validationToken);
             setIsLoading(false);
-            return; // Exit early, don't show error toast
+            return;
           }
         } catch (e) {
           // Not a JSON error, continue with normal error handling
         }
-
         throw new Error(result.error);
       }
 
-      // Customize success message and redirect based on account type
+      // Success handling
       if (accountType === "admin") {
         toast({
           title: "Admin Login Successful!",
           description: "Redirecting to admin dashboard...",
           className: "bg-red-500 text-white",
         });
-        router.push("/admin");
+        await router.push("/admin");
+        router.refresh();
       } else {
         toast({
           title: "Login Successful!",
           description: "Redirecting to your dashboard...",
           className: "bg-green-500 text-white",
         });
-        router.push("/dashboard");
+        window.location.href = "/dashboard"; // Force full reload for regular user
       }
-      router.refresh();
+
     } catch (error: any) {
       console.error("Login error:", error);
       toast({

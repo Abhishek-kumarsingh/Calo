@@ -170,11 +170,13 @@ export async function GET(req: NextRequest) {
 
       // Log this action
       await logAdminEvent(
-        {
-          action: "end_impersonation",
-          impersonatedUserId: impersonationToken.impersonatedUserId
-        },
-        adminUser._id.toString()
+        "end_impersonation",
+        `Admin ended impersonation of user ID: ${impersonationToken.impersonatedUserId}`,
+        adminUser._id.toString(),
+        impersonationToken.impersonatedUserId,
+        "User",
+        "success",
+        req
       );
 
       // Return success
