@@ -344,7 +344,11 @@ async function generateQuestionsWithAI(
               // If we couldn't find a question to adjust, create a new one
               if (!adjusted) {
                 // Create a new question of the required type
-                let newQuestion: Question;
+                let newQuestion: Question = {
+                  question: `Additional question for ${subDomain}: Explain a key concept in ${subDomain} that's important for ${level} developers.`,
+                  type: type
+                };
+                
                 if (type === 'text') {
                   newQuestion = {
                     question: `Additional ${type} question for ${subDomain}: Explain a key concept in ${subDomain} that's important for ${level} developers.`,
@@ -551,8 +555,8 @@ export async function POST(
     // Retry parameters
     const maxRetries = 3;
     const initialDelay = 3000; // 3 seconds
-    let questions: Question[];
-    let lastError: Error;
+    let questions: Question[] = [];
+    let lastError: Error | undefined;
 
     // Try to generate questions with retries
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
