@@ -73,14 +73,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           );
         })()}
         {/* Sidebar for desktop */}
-        <nav className="hidden md:flex w-64 p-4 border-r border-border bg-card">
+        <div className="hidden md:flex h-screen">
           {/* Sidebar navigation */}
           {(() => {
-            const DashboardNav = require("@/components/dashboard/dashboard-nav").DashboardNav;
+            const DashboardSidebar = require("@/components/dashboard/dashboard-nav").DashboardSidebar;
             const dashboardConfig = require("@/config/dashboard").dashboardConfig;
-            return <DashboardNav items={dashboardConfig.sidebarNav} />;
+            return <DashboardSidebar items={dashboardConfig.sidebarNav} />;
           })()}
-        </nav>
+        </div>
         <div className="flex-1 flex flex-col min-h-screen">
           <ErrorBoundary>
             <header className="h-16 border-b border-border px-4 flex items-center justify-between">
