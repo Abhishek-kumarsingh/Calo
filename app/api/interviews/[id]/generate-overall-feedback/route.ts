@@ -98,8 +98,9 @@ Questions and Answers:
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
+      console.error("GEMINI_API_KEY is not configured in environment variables.");
       return NextResponse.json(
-        { error: "API key not configured" },
+        { message: "Server configuration error", error: "API key not configured" },
         { status: 500 }
       );
     }
@@ -117,6 +118,11 @@ Questions and Answers:
       const result = await model.generateContent(promptText);
       const response = await result.response;
       const feedbackText = response.text();
+
+      if (!feedbackText || feedbackText.trim() === "") {
+        console.error("Gemini API returned an empty feedback response.");
+        throw new Error("The AI service returned an empty response. Please try again.");
+      }
 
       // Extract score from feedback (assuming the AI includes a score in its response)
       let score = null;
@@ -162,16 +168,17 @@ Questions and Answers:
         interview: transformedInterview,
       });
     } catch (error: any) {
-      console.error("Error generating feedback:", error);
+      console.error("Error during Gemini API call or database update:", error);
       return NextResponse.json(
-        { error: error.message || "Failed to generate feedback" },
+        { message: "Failed to generate feedback", error: error.message || "An unknown error occurred while processing the AI response." },
         { status: 500 }
       );
     }
   } catch (error: any) {
     console.error("Error in generate-overall-feedback endpoint:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
     return NextResponse.json(
-      { error: error.message || "Failed to generate feedback" },
+      { message: "An internal server error occurred.", error: errorMessage },
       { status: 500 }
     );
   }

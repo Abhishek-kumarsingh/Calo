@@ -5,11 +5,8 @@ import connectToDatabase from "@/lib/mongodb";
 import InterviewModel from "@/lib/models/Interview";
 import UserModel from "@/lib/models/User";
 import mongoose from "mongoose";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateAIContent, parseJsonFromAIResponse } from "@/lib/services/aiService";
 import { QuestionBankService } from "@/lib/services/questionBankService";
-
-// Initialize Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 // Define interfaces for question types and distribution
 interface QuestionTypes {
@@ -39,9 +36,6 @@ async function generateQuestionsWithAI(
 ) {
   try {
     console.log(`Generating ${numQuestions} questions for ${domain}/${subDomain} at ${level} level`);
-
-    // Create a model instance
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Determine question type distribution
     let typeDistribution = '';
@@ -205,94 +199,22 @@ async function generateQuestionsWithAI(
 
     This is a critical task where precision is required. The exact number and types of questions must be followed.`;
 
-    // Generate content with retry logic
-    let result;
-    let response;
-    let text;
-
-    // Retry parameters
-    const maxRetries = 3;
-    const initialDelay = 2000; // 2 seconds
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`Attempt ${attempt} of ${maxRetries} to generate content`);
-        result = await model.generateContent(prompt);
-        response = await result.response;
-        text = response.text();
-        console.log(`Successfully generated content on attempt ${attempt}`);
-        break; // Success, exit the retry loop
-      } catch (error: any) {
-        console.error(`Error on attempt ${attempt}:`, error.message);
-
-        // Check if this is a service overload error
-        const isOverloaded = error.message && (
-          error.message.includes("overloaded") ||
-          error.message.includes("503") ||
-          error.message.includes("Service Unavailable")
-        );
-
-        // If we've reached max retries or it's not an overload error, rethrow
-        if (attempt >= maxRetries || !isOverloaded) {
-          throw error;
-        }
-
-        // Calculate exponential backoff delay
-        const delay = initialDelay * Math.pow(2, attempt - 1);
-        console.log(`Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
+    // Use our new AI service to generate content
+    // This will automatically handle load balancing between Gemini and Claude
+    console.log("Generating questions using AI service");
+    const text = await generateAIContent(prompt, {
+      preferredProvider: "auto", // This will distribute between Gemini and Claude
+      maxRetries: 3,
+      initialDelay: 2000
+    });
 
     if (!text) {
       throw new Error("Failed to generate content after multiple attempts");
     }
 
-    // Parse the JSON response
+    // Parse the JSON response using our utility function
     try {
-      // Log the raw response for debugging
-      console.log("Raw AI response:", text.substring(0, 500) + (text.length > 500 ? '...' : ''));
-
-      // Extract JSON if it's wrapped in markdown code blocks
-      let jsonText = text;
-
-      // Try different patterns to extract JSON
-      if (text.includes("```json")) {
-        console.log("Found ```json pattern");
-        jsonText = text.split("```json")[1].split("```")[0].trim();
-      } else if (text.includes("```")) {
-        console.log("Found ``` pattern");
-        jsonText = text.split("```")[1].split("```")[0].trim();
-      } else if (text.includes("[") && text.includes("]")) {
-        // Try to extract JSON array directly
-        console.log("Trying to extract JSON array directly");
-        const startIdx = text.indexOf("[");
-        const endIdx = text.lastIndexOf("]") + 1;
-        if (startIdx >= 0 && endIdx > startIdx) {
-          jsonText = text.substring(startIdx, endIdx);
-        }
-      }
-
-      console.log("Extracted JSON text:", jsonText.substring(0, 500) + (jsonText.length > 500 ? '...' : ''));
-
-      // Try to parse the JSON
-      let questions;
-      try {
-        questions = JSON.parse(jsonText);
-      } catch (parseError) {
-        console.error("Initial JSON parsing failed:", parseError);
-
-        // Try to clean the JSON text and parse again
-        const cleanedText = jsonText
-          .replace(/(\r\n|\n|\r)/gm, "") // Remove newlines
-          .replace(/\s+/g, " ") // Replace multiple spaces with a single space
-          .trim();
-
-        console.log("Cleaned JSON text:", cleanedText.substring(0, 500) + (cleanedText.length > 500 ? '...' : ''));
-
-        // Try parsing again
-        questions = JSON.parse(cleanedText);
-      }
+      const questions = parseJsonFromAIResponse(text);
 
       // Validate the structure
       if (!Array.isArray(questions)) {
