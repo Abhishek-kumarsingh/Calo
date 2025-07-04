@@ -9,7 +9,7 @@ export function NewLandingTestimonials() {
 
   const testimonials = [
     {
-      quote: "InterviewAI has completely transformed our hiring process. The Gemini AI integration provides incredibly insightful candidate assessments that have helped us find top talent faster than ever.",
+      quote: "InterviewAI has completely transformed our hiring process. The AI-powered interviews save our team countless hours while still providing deep insights into each candidate's abilities. It's like having an expert interviewer available 24/7.",
       author: "Sarah Johnson",
       role: "Head of Talent Acquisition",
       company: "TechVision Inc.",
@@ -25,7 +25,7 @@ export function NewLandingTestimonials() {
       rating: 5
     },
     {
-      quote: "What impressed me most was how the Gemini AI could accurately assess technical skills across different programming languages. It's helped us build a more diverse engineering team.",
+      quote: "What impressed me most was how the AI could accurately assess technical skills across different programming languages. It's helped us build a more diverse engineering team.",
       author: "Priya Sharma",
       role: "Engineering Director",
       company: "DataFlow Systems",
