@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -51,7 +52,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           const { usePathname } = require('next/navigation');
           const pathname = usePathname();
           // Map sidebarNav to ResponsiveNavigation items
-          const items = dashboardConfig.sidebarNav.map((item) => ({
+          const items = dashboardConfig.sidebarNav.map((item: { title: string; href: string; icon: React.ComponentType<{ className?: string }>; role?: string }) => ({
             label: item.title,
             href: item.href,
             icon: React.createElement(item.icon, { className: 'h-5 w-5' }),
@@ -60,7 +61,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           }));
           // Filter by role if session exists
           const userRole = session?.user?.role || "user";
-          const filteredItems = items.filter(item => !item.role || item.role === userRole);
+          const filteredItems = items.filter((item: { role?: string }) => !item.role || item.role === userRole);
           return (
             <div className="md:hidden w-full">
               <ResponsiveNavigation
